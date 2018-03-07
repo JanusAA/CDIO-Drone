@@ -15,9 +15,13 @@ import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.VideoChannel;
 import de.yadrone.base.video.ImageListener;
 
-@SuppressWarnings("serial")
+
 public class DroneVideoListener extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private BufferedImage image = null;
 
 	public DroneVideoListener(final IARDrone drone){

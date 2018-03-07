@@ -31,24 +31,27 @@ public class MainTest
 			
 			// Tutorial Section 2
 			new DroneAlttitudeListener(drone);
+		
 			
 			
 			// Tutorial Section 3
 			new DroneVideoListener(drone);
-			
-			
-			// Tutorial Section 4
+			drone.getConfigurationManager().connect(25);
+			drone.getCommandManager().isConnected();
 		
-			CommandManager cmd = drone.getCommandManager();
-			int speed = 30;
-			
-			cmd.takeOff().doFor(10000);
-//			cmd.forward(speed).doFor(10000);
-//			cmd.backward(speed).doFor(10000);
-			cmd.setVideoBitrate(256);
-			cmd.setVideoCodecFps(5);
-		
-			cmd.landing();
+//			
+//			// Tutorial Section 4
+//		
+//			CommandManager cmd = drone.getCommandManager();
+//			int speed = 30;
+//			
+//			cmd.takeOff().doFor(10000);
+////			cmd.forward(speed).doFor(10000);
+////			cmd.backward(speed).doFor(10000);
+//			cmd.setVideoBitrate(256);
+//			cmd.setVideoCodecFps(5);
+//		
+//			cmd.landing();
 			
 			
 			
