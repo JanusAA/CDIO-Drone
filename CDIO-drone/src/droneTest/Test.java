@@ -11,6 +11,17 @@ public class Test {
 		try{
 			drone = new ARDrone();
 			drone.start();
+			
+			
+			drone.getCommandManager().takeOff();
+			drone.getCommandManager().waitFor(5000);
+			drone.getCommandManager().goLeft(30);
+			drone.getCommandManager().waitFor(5000);
+			drone.getCommandManager().goRight(30);
+			drone.getCommandManager().waitFor(5000);
+			drone.getCommandManager().landing();
+			
+			
 		}
 		catch (Exception e){
 			e.printStackTrace();
