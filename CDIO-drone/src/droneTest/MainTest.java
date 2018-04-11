@@ -1,14 +1,10 @@
 package droneTest;
 
 
-import de.yadrone.apps.tutorial.TutorialCommander;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
-import de.yadrone.base.command.CommandManager;
-import de.yadrone.base.command.LEDAnimation;
 import de.yadrone.base.exception.ARDroneException;
 import de.yadrone.base.exception.IExceptionListener;
-import de.yadrone.base.navdata.AttitudeListener;
 
 public class MainTest
 {
@@ -30,14 +26,14 @@ public class MainTest
 			drone.start();
 			
 			// Tutorial Section 2
-			new DroneAlttitudeListener(drone);
+	//		new DroneAlttitudeListener(drone);
 		
 			
 			
 			// Tutorial Section 3
 			new DroneVideoListener(drone);
-			drone.getConfigurationManager().connect(25);
-			drone.getCommandManager().isConnected();
+	//		drone.getConfigurationManager().connect(25);
+	//		drone.getCommandManager().isConnected();
 		
 //			
 //			// Tutorial Section 4
@@ -60,12 +56,12 @@ public class MainTest
 		{
 			exc.printStackTrace();
 		}
-		finally
-		{
-			if (drone != null)
-				drone.stop();
+//		finally
+//		{
+	//		if (drone != null)
+//				drone.stop();
 
-			System.exit(0);
-		}
+//			System.exit(0);
+	//	}
 	}
 }
