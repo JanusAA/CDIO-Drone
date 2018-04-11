@@ -1,5 +1,7 @@
 package droneTest;
 
+import de.yadrone.apps.controlcenter.plugins.qrcode.*;
+import de.yadrone
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 
