@@ -3,6 +3,6 @@
 	<classpathentry kind="src" path="CDIO-drone/src"/>
 	<classpathentry exported="true" kind="lib" path="CDIO-drone/libs/yadrone_032.jar"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/aleks/Downloads/yadrone_032_fat_lib.zip"/>
+	<classpathentry kind="lib" path="C:/Users/aleks/Documents/GitHub/CDIO-Drone/CDIO-drone/libs/yadrone_032_fat_lib.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
