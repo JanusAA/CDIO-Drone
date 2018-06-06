@@ -15,23 +15,27 @@ import de.yadrone.base.video.ImageListener;
 public class CircleScanner implements ImageListener {
 
 	private ArrayList<CircleListener> listeners = new ArrayList<CircleListener>();
-	private long imageCount = 0;
-	private final int frameSkip = 5; // Only check every n frames. Must be > 0. 1 == no skip.
+	private long imageCounter = 0;
+	private int framesWanted = 5; // Checks every 5th frame
+	private static int blurLevel = 9; // Amount of blurring,
+	private static double dp = 1.1;
+	private static int minDist = 50; // Distance between centers
 	
-	
+	//Method for scanning for circles in a matrix.
 	public static Circle[] scanForCircles(Mat image){	
 	Size imgSize = new Size(0,0);
 	if (image.size().height > 1200)
 			Imgproc.resize(image, image, imgSize, 0.5,0.5,1);
 	
     Mat gray = image.clone();
-    
-    Imgproc.cvtColor(image, gray, Imgproc.COLOR_BGR2GRAY);
-    Imgproc.medianBlur(gray, gray, 5);
-    Mat circles = new Mat();
-    
-    Imgproc.HoughCircles(gray, circles, Imgproc.HOUGH_GRADIENT, 1.1, 1); // change the last two parameters
-            // (min_radius & max_radius) to detect larger circles
+ // Get the gray img
+ 		Imgproc.cvtColor(image, gray, Imgproc.COLOR_BGR2GRAY);
+ 		
+ 		// Detect circles
+ 		Mat circles = new Mat();
+ 		Size s = new Size(blurLevel,blurLevel);
+ 		Imgproc.GaussianBlur(gray, gray, s, 2);
+ 		Imgproc.HoughCircles(gray, circles, Imgproc.CV_HOUGH_GRADIENT, dp, minDist);
     
     Circle[] cir = new Circle[circles.cols()];
     double[] circlePoints;
@@ -52,32 +56,19 @@ public class CircleScanner implements ImageListener {
 		  byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
 		  mat.put(0, 0, data);
 		  return scanForCircles(mat);
-	}
+	}	
 	
-	public static Mat loadImg(String imgLoc){
-		Mat image;
-		image = Imgcodecs.imread(imgLoc, Imgcodecs.IMREAD_COLOR);
-		if (image.empty()){
-			System.out.println("Couldn't load image!");
-			return null;
-		} else
-		return image;
-	}
-	
-	
-	
+	//add listener method
 	public void addListener(CircleListener listener) {
 		this.listeners.add(listener);
 	}
 	
 	
-	
-	
-	
+	//updated image method for when the image changes.
 	@Override
 	public void imageUpdated(BufferedImage img) {
 		// We don't need to find circles in every frame
-				if ((imageCount++ % frameSkip) != 0)
+				if ((imageCounter++ % framesWanted) != 0)
 					return;
 				Circle[] circles = scanForCirclesBuff(img);
 				for (CircleListener listener : listeners)

@@ -39,7 +39,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener{
 	private IARDrone drone;
 	
 	private Circle[] circles; //testing this
-	private int imgScale = 2;
+	private int imgScale = 1;
 	
 	
 	private BufferedImage image = null;
