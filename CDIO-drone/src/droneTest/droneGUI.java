@@ -294,7 +294,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener{
 
 
 	@Override
-	public void circlesUpdated(Circle[] circle) {
+	public void circlesUpdated(Circle[] circles) {
 		this.circles = circles;
 	}
 

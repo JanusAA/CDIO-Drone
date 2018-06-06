@@ -25,14 +25,14 @@ public class GUITest {
 		
 		//drone.getCommandManager().setVideoCodec(VideoCodec.H264_360P);
 
-		
-		
-		
 		droneGUI gui = new droneGUI(drone, this);
-		drone.getVideoManager().addImageListener(gui);
 		
 		circles = new CircleScanner();
 		circles.addListener(gui);
+		
+
+		drone.getVideoManager().addImageListener(gui);
+		drone.getVideoManager().addImageListener(circles);
 	}
 
 
