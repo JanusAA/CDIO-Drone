@@ -19,6 +19,7 @@ public class GUITest {
 	private CircleScanner circles = null;
 	
 	public GUITest() {
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		drone = new ARDrone();
 		drone.start();
 		drone.getCommandManager().setVideoChannel(VideoChannel.HORI);

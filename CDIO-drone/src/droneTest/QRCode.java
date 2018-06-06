@@ -3,16 +3,18 @@ package droneTest;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
+import com.google.zxing.DecodeHintType;
 import com.google.zxing.LuminanceSource;
-import com.google.zxing.MultiFormatReader;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
-
+import com.google.zxing.qrcode.QRCodeReader;
 import de.yadrone.apps.paperchase.TagListener;
+import de.yadrone.base.ARDrone;
 import de.yadrone.base.video.ImageListener;
 
 public class QRCode implements ImageListener
@@ -27,18 +29,18 @@ public class QRCode implements ImageListener
 	{
 		if ((++imageCount % 2) == 0)
 			return;
-		
 		// try to detect QR code
 		LuminanceSource source = new BufferedImageLuminanceSource(image);
 		BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 
 		// decode the barcode (if only QR codes are used, the QRCodeReader might be a better choice)
-		MultiFormatReader reader = new MultiFormatReader();
+		QRCodeReader reader = new QRCodeReader();
 
 		double theta = Double.NaN;
 		try
 		{
 			scanResult = reader.decode(bitmap);
+			System.out.println("Janus lugter");
 
 			ResultPoint[] points = scanResult.getResultPoints();
 			ResultPoint a = points[1]; // top-left
@@ -69,6 +71,7 @@ public class QRCode implements ImageListener
 		{
 			// no code found.
 			scanResult = null;
+			System.out.println("Janus Lugter Endnu mere");
 		}
 		
 		// inform all listener
@@ -87,4 +90,5 @@ public class QRCode implements ImageListener
 	{
 		this.listener.remove(listener);
 	}
+
 }

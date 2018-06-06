@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import de.yadrone.base.video.ImageListener;
@@ -51,6 +52,16 @@ public class CircleScanner implements ImageListener {
 		  byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
 		  mat.put(0, 0, data);
 		  return scanForCircles(mat);
+	}
+	
+	public static Mat loadImg(String imgLoc){
+		Mat image;
+		image = Imgcodecs.imread(imgLoc, Imgcodecs.IMREAD_COLOR);
+		if (image.empty()){
+			System.out.println("Couldn't load image!");
+			return null;
+		} else
+		return image;
 	}
 	
 	
