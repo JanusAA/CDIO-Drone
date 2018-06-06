@@ -17,7 +17,7 @@ public class MainTest
 		{
 			// Tutorial Section 1
 			drone = new ARDrone();
-
+			
 			drone.addExceptionListener(new IExceptionListener() {
 				public void exeptionOccurred(ARDroneException exc)
 				{
@@ -34,29 +34,28 @@ public class MainTest
 
 			// Tutorial Section 3
 			new DroneVideoListener(drone);
-			drone.getConfigurationManager().connect(25);
-			drone.getCommandManager().isConnected();
-		
+			//drone.getConfigurationManager().connect(25);
+			//drone.getCommandManager().isConnected();
 		
 
 			//			
 			//			// Tutorial Section 4
-			CommandManager cmd = drone.getCommandManager();
-			int speed = 30;
-			drone.setSpeed(speed);
-			cmd.setVideoBitrate(256);
-			cmd.setVideoCodecFps(30);
-			cmd.takeOff().doFor(10000);
-			System.out.println("Takeoff called");
-			cmd.hover().doFor(10000);
-			System.out.println("hover called");
-			cmd.spinRight(10).doFor(20000);
-			System.out.println("spinRight called");
-//			cmd.forward(speed).doFor(10000);
-//			cmd.backward(speed).doFor(10000);
-
-			cmd.landing();
-			System.out.println("landing called");
+//			CommandManager cmd = drone.getCommandManager();
+//			int speed = 30;
+//			drone.setSpeed(speed);
+//			cmd.setVideoBitrate(256);
+//			cmd.setVideoCodecFps(30);
+//			cmd.takeOff().doFor(10000);
+//			System.out.println("Takeoff called");
+//			cmd.hover().doFor(10000);
+//			System.out.println("hover called");
+//			cmd.spinRight(10).doFor(20000);
+//			System.out.println("spinRight called");
+////			cmd.forward(speed).doFor(10000);
+////			cmd.backward(speed).doFor(10000);
+//
+//			cmd.landing();
+//			System.out.println("landing called");
 
 
 
@@ -68,7 +67,8 @@ public class MainTest
 		finally{
 			if (drone != null);
 		}
-		drone.stop();
+//		drone.stop();
 
-		System.exit(0);	}
+		//System.exit(0);
+		}
 }

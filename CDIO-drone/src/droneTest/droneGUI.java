@@ -28,11 +28,19 @@ import de.yadrone.base.navdata.ControlState;
 import de.yadrone.base.navdata.DroneState;
 import de.yadrone.base.navdata.StateListener;
 import de.yadrone.base.video.ImageListener;
+import imageDetection.Circle;
+import imageDetection.CircleListener;
 
-public class droneGUI extends JFrame implements ImageListener{
+public class droneGUI extends JFrame implements ImageListener, CircleListener{
 	
+
+	private static final long serialVersionUID = 45532;
 	private GUITest main;
 	private IARDrone drone;
+	
+	private Circle[] circles; //testing this
+	private int imgScale = 2;
+	
 	
 	private BufferedImage image = null;
 	private Result result;
@@ -56,9 +64,7 @@ public class droneGUI extends JFrame implements ImageListener{
 		this.main = main;
 		this.drone = drone;
 		
-		
-		
-        setSize(GUITest.IMAGE_WIDTH, GUITest.IMAGE_HEIGHT);
+		setSize(GUITest.IMAGE_WIDTH, GUITest.IMAGE_HEIGHT);
         setVisible(true);
         setResizable(false);
         
@@ -154,6 +160,17 @@ public class droneGUI extends JFrame implements ImageListener{
         					result = null;
         				}
         			}
+        			
+        			//Draw circles
+        			if (circles != null)
+						for (Circle c : circles) {
+							g.setColor(Color.RED);
+							g.drawRect((int) c.x * imgScale, (int) c.y * imgScale, 10, 10);
+							g.setColor(Color.BLUE);
+							g.drawOval((int) (c.x - c.r) * imgScale, (int) (c.y - c.r) * imgScale,
+									(int) (2 * c.r) * imgScale, (int) (2 * c.r) * imgScale);
+							g.drawString(c.toString(), (int) c.x * imgScale + 10, (int) c.y * imgScale + 10);
+						}
         			
         			// draw "Congrats" if all tags have been detected
         			if (gameOver)
@@ -273,6 +290,12 @@ public class droneGUI extends JFrame implements ImageListener{
 	private void stopGameTimeCounter()
 	{
 		timer.cancel();
+	}
+
+
+	@Override
+	public void circlesUpdated(Circle[] circle) {
+		this.circles = circles;
 	}
 
 
