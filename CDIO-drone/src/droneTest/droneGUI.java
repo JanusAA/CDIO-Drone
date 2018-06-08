@@ -30,6 +30,7 @@ import org.opencv.imgproc.Imgproc;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 
+import QR.QRListener;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.navdata.ControlState;
 import de.yadrone.base.navdata.DroneState;
@@ -39,7 +40,7 @@ import imageDetection.Circle;
 import imageDetection.CircleListener;
 import imageDetection.RectangleListener;
 
-public class droneGUI extends JFrame implements ImageListener, CircleListener, RectangleListener{
+public class droneGUI extends JFrame implements ImageListener, CircleListener, RectangleListener, QRListener{
 	
 
 	private static final long serialVersionUID = 45532;
@@ -253,6 +254,36 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 		});
     }
 	
+	private void startGameTimeCounter()
+	{
+		gameStartTimestamp = System.currentTimeMillis();
+		
+		TimerTask timerTask = new TimerTask() {
+
+			public void run()
+			{
+				long time = System.currentTimeMillis() - gameStartTimestamp;
+				
+				int minutes = (int)(time / (60 * 1000));
+				int seconds = (int)((time / 1000) % 60);
+				gameTime = String.format("%d:%02d", minutes, seconds);
+			}
+		};
+		
+		timer.schedule(timerTask, 0, 1000);		
+	}
+	
+	private void stopGameTimeCounter()
+	{
+		timer.cancel();
+	}
+
+
+	@Override
+	public void circlesUpdated(Circle[] circles) {
+		this.circles = circles;
+	}
+	
 	public void onTag(Result result, float orientation)
 	{
 		if (result != null)
@@ -285,37 +316,6 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 			}
 		}
 	}
-	
-	private void startGameTimeCounter()
-	{
-		gameStartTimestamp = System.currentTimeMillis();
-		
-		TimerTask timerTask = new TimerTask() {
-
-			public void run()
-			{
-				long time = System.currentTimeMillis() - gameStartTimestamp;
-				
-				int minutes = (int)(time / (60 * 1000));
-				int seconds = (int)((time / 1000) % 60);
-				gameTime = String.format("%d:%02d", minutes, seconds);
-			}
-		};
-		
-		timer.schedule(timerTask, 0, 1000);		
-	}
-	
-	private void stopGameTimeCounter()
-	{
-		timer.cancel();
-	}
-
-
-	@Override
-	public void circlesUpdated(Circle[] circles) {
-		this.circles = circles;
-	}
-
 
 	@Override
 	public void rectanglesUpdated(ArrayList<Rect> rectangles) {
