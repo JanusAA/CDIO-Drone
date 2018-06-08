@@ -7,6 +7,8 @@ import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.VideoChannel;
 import de.yadrone.base.command.VideoCodec;
 import imageDetection.CircleScanner;
+import QR.QRCode;
+import QR.QRListener;
 
 public class GUITest {
 	
@@ -17,6 +19,7 @@ public class GUITest {
 	
 	private IARDrone drone = null;
 	private CircleScanner circles = null;
+	private QRCode scanner = null;
 	
 	public GUITest() {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -30,8 +33,10 @@ public class GUITest {
 		
 		circles = new CircleScanner();
 		circles.addListener(gui);
+		scanner = new QRCode();
+		scanner.addListener(gui);
 		
-
+		drone.getVideoManager().addImageListener(scanner);
 		drone.getVideoManager().addImageListener(gui);
 		drone.getVideoManager().addImageListener(circles);
 	}
