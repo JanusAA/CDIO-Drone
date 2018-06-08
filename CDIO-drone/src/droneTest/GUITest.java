@@ -7,6 +7,7 @@ import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.VideoChannel;
 import de.yadrone.base.command.VideoCodec;
 import imageDetection.CircleScanner;
+import imageDetection.Rectangle;
 
 public class GUITest {
 	
@@ -17,6 +18,7 @@ public class GUITest {
 	
 	private IARDrone drone = null;
 	private CircleScanner circles = null;
+	private Rectangle rect = null;
 	
 	public GUITest() {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -31,11 +33,15 @@ public class GUITest {
 		circles = new CircleScanner();
 		circles.addListener(gui);
 		
-
+		rect = new Rectangle();
+		rect.addListener(gui);
+		
+		
 		drone.getVideoManager().addImageListener(gui);
 		drone.getVideoManager().addImageListener(circles);
+		drone.getVideoManager().addImageListener(rect);
 	}
-
+	
 
 	public void enableAutoControl(boolean selected) {
 

@@ -13,12 +13,19 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
@@ -30,8 +37,9 @@ import de.yadrone.base.navdata.StateListener;
 import de.yadrone.base.video.ImageListener;
 import imageDetection.Circle;
 import imageDetection.CircleListener;
+import imageDetection.RectangleListener;
 
-public class droneGUI extends JFrame implements ImageListener, CircleListener{
+public class droneGUI extends JFrame implements ImageListener, CircleListener, RectangleListener{
 	
 
 	private static final long serialVersionUID = 45532;
@@ -39,6 +47,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener{
 	private IARDrone drone;
 	
 	private Circle[] circles; //testing this
+	private ArrayList<Rect> rectangles;
 	private int imgScale = 1;
 	
 	
@@ -120,7 +129,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener{
     				for (int i=0; i < shredsToFind.length; i++)
     				{
     					if (shredsFound[i])
-    						g.setColor(Color.GREEN.darker());
+    					g.setColor(Color.GREEN.darker());
     					else
     						g.setColor(Color.RED);
     					g.drawString(shredsToFind[i], 30, 40 + (i*20));
@@ -171,6 +180,15 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener{
 									(int) (2 * c.r) * imgScale, (int) (2 * c.r) * imgScale);
 							g.drawString(c.toString(), (int) c.x * imgScale + 10, (int) c.y * imgScale + 10);
 						}
+        			
+        			
+        			//Draw rectangles
+        			if (rectangles != null)
+        				for (Rect rec : rectangles) {
+        				g.setColor(Color.GREEN);
+        				//g.drawRect(rec.x rec., rec.y,rec.width, rec.height);
+        				g.drawPolygon(xPoints, yPoints, nPoints);
+        				}
         			
         			// draw "Congrats" if all tags have been detected
         			if (gameOver)
@@ -296,6 +314,13 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener{
 	@Override
 	public void circlesUpdated(Circle[] circles) {
 		this.circles = circles;
+	}
+
+
+	@Override
+	public void rectanglesUpdated(ArrayList<Rect> rectangles) {
+		this.rectangles = rectangles;
+		
 	}
 
 
