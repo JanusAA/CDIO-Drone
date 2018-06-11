@@ -18,6 +18,8 @@ public class GUITest {
 	
 	public final static int TOLERANCE = 40;
 	
+	public final static int SPEED = 30;
+	
 	private IARDrone drone = null;
 	private CircleScanner circles = null;
 	private Rectangle rect = null;
@@ -29,7 +31,7 @@ public class GUITest {
 		drone.start();
 		drone.getCommandManager().setVideoChannel(VideoChannel.HORI);
 		
-		//drone.getCommandManager().setVideoCodec(VideoCodec.H264_360P);
+		DroneCommander cmd = new DroneCommander((ARDrone) drone, SPEED);
 
 		droneGUI gui = new droneGUI(drone, this);
 		
