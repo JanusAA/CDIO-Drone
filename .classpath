@@ -15,6 +15,6 @@
 	<classpathentry kind="lib" path="CDIO-drone/libs/slf4j-api-1.7.2.jar"/>
 	<classpathentry kind="lib" path="CDIO-drone/libs/slf4j-jdk14-1.7.2.jar"/>
 	<classpathentry kind="lib" path="CDIO-drone/libs/xuggle-xuggler-5.4.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Opencv"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/opencv"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
