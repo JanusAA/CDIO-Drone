@@ -1,5 +1,9 @@
 package controllers;
 
+import com.google.zxing.Result;
+
+import droneTest.DroneCommander;
+
 public class DroneStateController {
 
 
@@ -9,6 +13,8 @@ public class DroneStateController {
 
 	public Command state;
 
+	private DroneCommander drone;
+	private MainController control;
 
 	public void commands (Command command) throws InterruptedException{
 
@@ -55,6 +61,30 @@ public class DroneStateController {
 		}
 	}
 	public void takeOff(){
-
+		//Take the drone off and sets it to over
+		System.out.println("State: Preparing for takeoff");
+		drone.takeOff();
+		drone.hover();
+		state = Command.Hover;
+		
+	}
+	
+	public void hover(){
+		//Makes the drone hover (used to wait for further instructions)
+		System.out.println("State: Hover");
+		drone.hover(7000);
+		state = Command.SearchForQR;
+	}
+	
+	public void searchForQR(){
+		//Search for QR method:
+		System.out.println("State: Searching for QR..");
+		Result tag = control.getTag();
+		if (tag != null){
+			System.out.println("QR located");
+			state = Command.ValidateQR;
+		}
+		drone.
+		
 	}
 }
