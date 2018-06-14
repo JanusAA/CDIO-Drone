@@ -16,7 +16,15 @@ import de.yadrone.base.ARDrone;
 
 
 public class MainController implements QRListener {
-	public Result tag;
+	
+	public final static int IMAGE_WIDTH = 640;
+	public final static int IMAGE_HEIGHT = 360;
+	
+	public final static int TOLERANCE = 40;
+	
+	private Result tag;
+	private float tagOrientation;
+	
 	private ARDrone drone = null;
 	private DroneStateController droneStateController;
 	private QRCode scanner = null;
@@ -39,8 +47,12 @@ public class MainController implements QRListener {
 	 * Get method for tag
 	 * @return tag, String read from QR
 	 */
-		Result getTag() {
+		 Result getTag() {
 			return tag; 
+		}
+		
+		public float getTagOrientation(){
+			return tagOrientation;
 		}
 		/**
 		 * Method to get gates, 
@@ -55,6 +67,7 @@ public class MainController implements QRListener {
 			if (result == null)
 				return;
 			tag = result; 
+			tagOrientation = orientation;
 
 		}
 
