@@ -2,11 +2,19 @@ package droneTest;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+
+import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.command.CommandManager;
 import imageDetection.Circle;
 import imageDetection.CircleListener;
+import imageDetection.CircleScanner;
 import droneTest.GUITest;
 
 public class DroneCommander implements CircleListener{
@@ -16,21 +24,31 @@ public class DroneCommander implements CircleListener{
 	
 	private ARDrone drone = null;
 	private CommandManager cmd = null;
+	private droneGUI dronegui = null;
 	
 	private int speed = 30;
-	private int slowspeed = 2;
+	private int slowspeed = 5;
+	private int slowtime = 50;
+	private double ErrorMargin = 35;
+	
+	private int count = 0;
+	private int methodecount = 0;
+	private int countmax = 6;
+	private boolean findCircle = true;
 	
 	private double midPoint_x = GUITest.IMAGE_WIDTH/2;
 	private double midPoint_y = GUITest.IMAGE_HEIGHT/2;
-	private double max_radius = 125;
+	private double max_radius = 140;
 	
 	private Circle[] circles;
 	
 		
-	public DroneCommander(ARDrone drone, int speed){
+	public DroneCommander(ARDrone drone, int speed, droneGUI gui){
 		this.drone = drone;
 		this.speed = speed;	
+		this.dronegui = gui;
 		cmd = drone.getCommandManager();
+		circles = dronegui.circles;
 	}
 	
 	public void takeOff(){
@@ -39,7 +57,7 @@ public class DroneCommander implements CircleListener{
 	}
 	
 	public void hover(){
-		cmd.hover().doFor(5000);
+		cmd.hover().doFor(1000);
 	}
 	
 	public void hover(int ms){
@@ -76,82 +94,145 @@ public class DroneCommander implements CircleListener{
 	}
 	
 	public void flyRight(int speed){
-		cmd.goRight(speed).doFor(1000);
+		cmd.goRight(speed).doFor(slowtime);
 	}
 	
 	public void flyLeft(int speed){
-		cmd.goLeft(speed).doFor(1000);
+		cmd.goLeft(speed).doFor(slowtime);
 	}
 	
 	public void flyForward(int speed){
-		cmd.forward(speed).doFor(1000);
+		cmd.forward(speed).doFor(slowtime);
+	}
+	
+	public void flyForward(int speed, int ms){
+		cmd.forward(speed).doFor(ms);
 	}
 	
 	public void flyBackward(int speed){
-		cmd.backward(speed).doFor(1000);
+		cmd.backward(speed).doFor(slowtime);
 	}
 	
 	public void increaseAltitude(int speed){
-		cmd.up(speed).doFor(1000);
+		cmd.up(speed).doFor(slowtime);
+	}
+	
+	public void increaseAltitude(int speed, int ms){
+		cmd.up(speed).doFor(ms);
 	}
 	
 	public void decreaseAltitude(int speed){
-		cmd.down(speed).doFor(1000);
+		cmd.down(speed).doFor(slowtime);
 	}
 	
-	public void findCircleCenter(Circle circle){
-		
-		double circle_x = circle.getX();
-		double circle_y = circle.getY();
-		double circle_r = circle.getRadius();
-		
-		if(circle_x > midPoint_x){
-			flyRight(slowspeed);
-		}
-		else if(circle_x < midPoint_x){
-			flyLeft(slowspeed);
-		}
-		if(circle_y > midPoint_y){
-			decreaseAltitude(slowspeed);		
-		}
-		else if(circle_y < midPoint_y){
-			increaseAltitude(slowspeed);
-		}
-		if(circle_r > max_radius){
-			flyBackward(slowspeed);
-		}
-		else if(circle_r < max_radius){
-			flyForward(slowspeed);
-		}
-		
+	public void setFindCircle(boolean true_false){
+		findCircle = true_false;
 	}
 	
-	public void flythroughCircle(){
-		int count = 0;
-		
-	if (droneGUI.circles != null)
-		System.out.println("");
-//			for (Circle c : circles) {
-//				findCircleCenter(c);
-//				count++;	
-//			}
-//		if(count >= 5){
-//			System.out.println("count is: " + count);
-//			Landing();
-//		}
-//		else{
-//			System.out.println("count failed");
-//			Landing();
-//		}
-		
+	public boolean getFindCircle(){
+		return findCircle;
 	}
+	
+	public boolean CircleInCenter(Circle circle){
+		boolean inCenter = false;
+				
+		if(circle.x <= midPoint_x + ErrorMargin && circle.x >= midPoint_x - ErrorMargin){
+			if(circle.y <= midPoint_y + ErrorMargin && circle.y >= midPoint_y - ErrorMargin){
+				if(circle.r <= max_radius + (ErrorMargin/2) && circle.r >= max_radius - (ErrorMargin/2)){
+					inCenter = true;
+				}
+			}
+		}
+		return inCenter;
+	}
+	
+	public void findCircleCenter(Circle circle) {
+		
+		double circle_x = circle.x;
+		double circle_y = circle.y;
+		double circle_r = circle.r;
+		
+		if(methodecount == 0){
+			if(circle.x <= midPoint_x + (ErrorMargin/2) == false && circle.x >= midPoint_x - (ErrorMargin/2) == false){
+			if(circle_x > midPoint_x){
+				flyRight(slowspeed);
+				System.out.println("højre");
+			}
+			else if(circle_x < midPoint_x){
+				flyLeft(slowspeed);
+				System.out.println("venstre");
+			}}
+			methodecount = 1;
+		}
+		else if(methodecount ==1){
+			if(circle.y <= midPoint_y + (ErrorMargin/2) == false && circle.y >= midPoint_y - (ErrorMargin/2) == false){
+			if(circle_y > midPoint_y){
+				decreaseAltitude(slowspeed);
+				System.out.println("ned");
+			}
+			else if(circle_y < midPoint_y){
+				increaseAltitude(slowspeed);
+				System.out.println("up");
+			}}
+			methodecount = 2;
+		}
+		else if(methodecount == 2){
+			if(circle.r <= max_radius + (ErrorMargin/2) == false && circle.r >= max_radius - (ErrorMargin/2) == false)
+			if(circle_r > max_radius){
+				flyBackward(slowspeed);
+				System.out.println("bagud");
+			}
+			else if(circle_r < max_radius){
+				flyForward(slowspeed);
+				System.out.println("frem");
+			}
+			methodecount = 3;
+		}		
+		else if(methodecount == 3){
+			
+		try {
+			Thread.currentThread().sleep(20);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		methodecount = 0;
+		}
+	}
+	
+	public void flythroughCircle(Circle[] circle){		
+	if (circle != null){
+//		System.out.println("fandt en cirkel");
+//			for(Circle c : circle){
+				findCircleCenter(circle[0]);
+					if(CircleInCenter(circle[0])){
+						count++;
+					}
+					else{
+						count = 0;
+					}
+				if(count >= countmax){
+					setFindCircle(false);
+					flyForward(35,2500);
+					hover();
+					Landing();
+					System.out.println("Found Circle Center");
+					return;
+				}
+				else{
+				}		
+//			}	
+		}
+	}
+	
+	
 
 	@Override
 	public void circlesUpdated(Circle[] circle) {
-		this.circles = circle;
-		
+		if(findCircle){
+		flythroughCircle(circle);
+		}
+		else{
+			System.out.println("fuck yeah!");
+		}
 	}
-	
-
-	
 }

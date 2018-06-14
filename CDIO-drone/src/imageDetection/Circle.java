@@ -47,4 +47,12 @@ public class Circle {
 		return this.r;
 	}
 	
+	public double getX(){
+		return x;
+	}
+	
+	public double getY(){
+		return y;
+	}
+	
 }

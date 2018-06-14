@@ -31,6 +31,7 @@ import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 
 import QR.QRListener;
+import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.navdata.ControlState;
 import de.yadrone.base.navdata.DroneState;
@@ -38,6 +39,7 @@ import de.yadrone.base.navdata.StateListener;
 import de.yadrone.base.video.ImageListener;
 import imageDetection.Circle;
 import imageDetection.CircleListener;
+import imageDetection.CircleScanner;
 import imageDetection.RectangleListener;
 
 public class droneGUI extends JFrame implements ImageListener, CircleListener, RectangleListener, QRListener{
@@ -47,10 +49,8 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 	private GUITest main;
 	private IARDrone drone;
 	
-	private Circle[] circles; //testing this
-	private ArrayList<Rect> rectangles;
+	public static Circle[] circles;
 	private int imgScale = 1;
-	
 	
 	private BufferedImage image = null;
 	private Result result;
@@ -61,11 +61,9 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 	
 	private JPanel videoPanel;
 	
-	private Timer timer = new Timer();
-	private long gameStartTimestamp = System.currentTimeMillis();
 	private String gameTime = "0:00";
 	
-	private boolean gameOver = false;
+	
 	
 	public droneGUI(final IARDrone drone, GUITest main)
 	{
@@ -73,6 +71,8 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
         
 		this.main = main;
 		this.drone = drone;
+		
+		
 		
 		setSize(GUITest.IMAGE_WIDTH, GUITest.IMAGE_HEIGHT);
         setVisible(true);
@@ -96,7 +96,6 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 			{
 				if (state.isFlying())
 				{
-					startGameTimeCounter();
 					drone.getNavDataManager().removeStateListener(this);
 				}
 			}
@@ -173,6 +172,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
         			
         			//Draw circles
         			if (circles != null)
+
 						for (Circle c : circles) {
 							g.setColor(Color.RED);
 							g.drawRect((int) c.x * imgScale, (int) c.y * imgScale, 10, 10);
@@ -180,31 +180,9 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 							g.drawOval((int) (c.x - c.r) * imgScale, (int) (c.y - c.r) * imgScale,
 									(int) (2 * c.r) * imgScale, (int) (2 * c.r) * imgScale);
 							g.drawString(c.toString(), (int) c.x * imgScale + 10, (int) c.y * imgScale + 10);
+							
 						}
         			
-        			
-        			//Draw rectangles
-        			if (rectangles != null)
-        				for (Rect rec : rectangles) {
-        				g.setColor(Color.GREEN);
-        				//g.drawRect(rec.x rec., rec.y,rec.width, rec.height);
-        				g.drawPolygon(xPoints, yPoints, nPoints);
-        				}
-        			
-        			// draw "Congrats" if all tags have been detected
-        			if (gameOver)
-        			{
-        				String str = "Congratulation !";
-        				
-        				g.setColor(Color.GREEN.darker());
-        				g.setFont(gameOverFont);
-        				
-        				FontMetrics metrics = g.getFontMetrics(gameOverFont);
-        				int hgt = metrics.getHeight();
-        				int adv = metrics.stringWidth(str);
-        				
-        				g.drawString(str, (getWidth() / 2) - (adv / 2), (getHeight() / 2) - (hgt / 2) - 50); // draw text centered
-        			}
         			
         			// draw the time
     				g.setColor(Color.RED);
@@ -254,30 +232,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 		});
     }
 	
-	private void startGameTimeCounter()
-	{
-		gameStartTimestamp = System.currentTimeMillis();
-		
-		TimerTask timerTask = new TimerTask() {
-
-			public void run()
-			{
-				long time = System.currentTimeMillis() - gameStartTimestamp;
-				
-				int minutes = (int)(time / (60 * 1000));
-				int seconds = (int)((time / 1000) % 60);
-				gameTime = String.format("%d:%02d", minutes, seconds);
-			}
-		};
-		
-		timer.schedule(timerTask, 0, 1000);		
-	}
 	
-	private void stopGameTimeCounter()
-	{
-		timer.cancel();
-	}
-
 
 	@Override
 	public void circlesUpdated(Circle[] circles) {
@@ -301,27 +256,19 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 				}
 			}
 			
-			// now check if all shreds have been found and if so, set the gameOver flag
-			boolean isGameOver = true;
-			for (int i=0; i < shredsFound.length; i++)
-			{
-				if (shredsFound[i] == false)
-					isGameOver = false;
-			}
-			
-			if (isGameOver) // all shreds found ?
-			{
-				gameOver = true;
-				stopGameTimeCounter();
-			}
+		
 		}
 	}
 
+
 	@Override
 	public void rectanglesUpdated(ArrayList<Rect> rectangles) {
-		this.rectangles = rectangles;
+		// TODO Auto-generated method stub
 		
 	}
+
+	
+	
 
 
 }
