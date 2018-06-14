@@ -96,7 +96,6 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 			{
 				if (state.isFlying())
 				{
-					startGameTimeCounter();
 					drone.getNavDataManager().removeStateListener(this);
 				}
 			}
@@ -184,27 +183,25 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
         			
         			
         			//Draw rectangles
-        			if (rectangles != null)
-        				for (Rect rec : rectangles) {
-        				g.setColor(Color.GREEN);
-        				//g.drawRect(rec.x rec., rec.y,rec.width, rec.height);
-        				g.drawPolygon(xPoints, yPoints, nPoints);
-        				}
+//        			if (rectangles != null)
+//        				for (Rect rec : rectangles) {
+//        				g.setColor(Color.GREEN);
+//        				//g.drawRect(rec.x rec., rec.y,rec.width, rec.height);
+//        				g.drawPolygon(xPoints, yPoints, nPoints);
+//        				}
         			
-        			// draw "Congrats" if all tags have been detected
-        			if (gameOver)
-        			{
-        				String str = "Congratulation !";
-        				
-        				g.setColor(Color.GREEN.darker());
-        				g.setFont(gameOverFont);
-        				
-        				FontMetrics metrics = g.getFontMetrics(gameOverFont);
-        				int hgt = metrics.getHeight();
-        				int adv = metrics.stringWidth(str);
-        				
-        				g.drawString(str, (getWidth() / 2) - (adv / 2), (getHeight() / 2) - (hgt / 2) - 50); // draw text centered
-        			}
+//        			if (gameOver)
+//        			{
+//        				
+//        				g.setColor(Color.GREEN.darker());
+//        				g.setFont(gameOverFont);
+//        				
+//        				FontMetrics metrics = g.getFontMetrics(gameOverFont);
+//        				int hgt = metrics.getHeight();
+//        				int adv = metrics.stringWidth(str);
+//        				
+//        				g.drawString(str, (getWidth() / 2) - (adv / 2), (getHeight() / 2) - (hgt / 2) - 50); // draw text centered
+//        			}
         			
         			// draw the time
     				g.setColor(Color.RED);
@@ -254,29 +251,29 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 		});
     }
 	
-	private void startGameTimeCounter()
-	{
-		gameStartTimestamp = System.currentTimeMillis();
-		
-		TimerTask timerTask = new TimerTask() {
-
-			public void run()
-			{
-				long time = System.currentTimeMillis() - gameStartTimestamp;
-				
-				int minutes = (int)(time / (60 * 1000));
-				int seconds = (int)((time / 1000) % 60);
-				gameTime = String.format("%d:%02d", minutes, seconds);
-			}
-		};
-		
-		timer.schedule(timerTask, 0, 1000);		
-	}
-	
-	private void stopGameTimeCounter()
-	{
-		timer.cancel();
-	}
+//	private void startGameTimeCounter()
+//	{
+//		gameStartTimestamp = System.currentTimeMillis();
+//		
+//		TimerTask timerTask = new TimerTask() {
+//
+//			public void run()
+//			{
+//				long time = System.currentTimeMillis() - gameStartTimestamp;
+//				
+//				int minutes = (int)(time / (60 * 1000));
+//				int seconds = (int)((time / 1000) % 60);
+//				gameTime = String.format("%d:%02d", minutes, seconds);
+//			}
+//		};
+//		
+//		timer.schedule(timerTask, 0, 1000);		
+//	}
+//	
+//	private void stopGameTimeCounter()
+//	{
+//		timer.cancel();
+//	}
 
 
 	@Override
@@ -312,7 +309,6 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 			if (isGameOver) // all shreds found ?
 			{
 				gameOver = true;
-				stopGameTimeCounter();
 			}
 		}
 	}

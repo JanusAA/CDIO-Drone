@@ -4,7 +4,9 @@ import java.util.ArrayList;
 
 import com.google.zxing.Result;
 
+import QR.QRCode;
 import QR.QRListener;
+import de.yadrone.base.ARDrone;
 
 
 /*
@@ -15,9 +17,12 @@ import QR.QRListener;
 
 public class MainController implements QRListener {
 	public Result tag;
-
+	private ARDrone drone = null;
+	private DroneStateController droneStateController;
+	private QRCode scanner = null;
 	//ArrayList to hold gatenumbers p0.1, p0.2 etc..
 	private ArrayList<String> gates = new ArrayList<String>();
+
 
 
 	public MainController() {
@@ -26,6 +31,8 @@ public class MainController implements QRListener {
 			gates.add("p.0" + i);
 		}
 
+		
+		
 	}
 
 	/**
@@ -51,5 +58,8 @@ public class MainController implements QRListener {
 
 		}
 
-	
+	public static void main(String[] args) {
+		new MainController();
+	}
+		
 }

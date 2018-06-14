@@ -16,7 +16,7 @@ public class DroneCommander implements CircleListener{
 	
 	private ARDrone drone = null;
 	private CommandManager cmd = null;
-	
+	private DroneAlttitudeListener nav;
 	private int speed = 30;
 	private int slowspeed = 2;
 	
@@ -31,6 +31,7 @@ public class DroneCommander implements CircleListener{
 		this.drone = drone;
 		this.speed = speed;	
 		cmd = drone.getCommandManager();
+		nav = new DroneAlttitudeListener(drone);
 	}
 	
 	public void takeOff(){
@@ -59,6 +60,26 @@ public class DroneCommander implements CircleListener{
 		cmd.spinRight(speed).doFor(ms);
 	}
 	
+	/**
+	 * Overloaded method, speed is the speed of the drone, 
+	 * ms is the time in milliseconds the drone will turn for
+	 * @param ms
+	 * @param speed
+	 */
+	public void TurnLeft(int ms, int speed){
+		cmd.spinLeft(speed).doFor(ms);
+	}
+	
+	/**
+	 * Overloaded method, speed is the speed of the drone, 
+	 * ms is the time in milliseconds the drone will turn for
+	 * @param ms
+	 * @param speed
+	 */
+	public void TurnRight(int ms, int speed){
+		cmd.spinRight(speed).doFor(ms);
+	}
+	
 	public void flyRight(){
 		cmd.goRight(speed);
 	}
@@ -75,20 +96,40 @@ public class DroneCommander implements CircleListener{
 		cmd.backward(speed);
 	}
 	
-	public void flyRight(int speed){
-		cmd.goRight(speed).doFor(1000);
+	/**
+	 * Overloaded method, used to set speed of drone in %, and time it shall fly in ms
+	 * @param speed
+	 * @param ms
+	 */
+	public void flyRight(int speed, int ms){
+		cmd.goRight(speed).doFor(ms);
 	}
 	
-	public void flyLeft(int speed){
-		cmd.goLeft(speed).doFor(1000);
+	/**
+	 * Overloaded method, used to set speed of drone in %, and time it shall fly in ms
+	 * @param speed
+	 * @param ms
+	 */
+	public void flyLeft(int speed, int ms){
+		cmd.goLeft(speed).doFor(ms);
 	}
 	
-	public void flyForward(int speed){
-		cmd.forward(speed).doFor(1000);
+	/**
+	 * Overloaded method, used to set speed of drone in %, and time it shall fly in ms
+	 * @param speed
+	 * @param ms
+	 */
+	public void flyForward(int speed, int ms){
+		cmd.forward(speed).doFor(ms);
 	}
 	
-	public void flyBackward(int speed){
-		cmd.backward(speed).doFor(1000);
+	/**
+	 * Overloaded method, used to set speed of drone in %, and time it shall fly in ms
+	 * @param speed
+	 * @param ms
+	 */
+	public void flyBackward(int speed, int ms){
+		cmd.backward(speed).doFor(ms);
 	}
 	
 	public void increaseAltitude(int speed){
@@ -98,6 +139,30 @@ public class DroneCommander implements CircleListener{
 	public void decreaseAltitude(int speed){
 		cmd.down(speed).doFor(1000);
 	}
+	
+	/**
+	 * Fly the drone to designated height in mm, keeps adjusting until the designated height is within 5cm.
+	 * @param height
+	 */
+	
+	public void moveToAltitude(int height){
+		while(true){
+			if (height - 50 > nav.getAltitude()) {
+				System.out.println("Current altitude: " + nav.getAltitude());
+				System.out.println("Going up");
+				cmd.up(speed).doFor(20);
+				//May need to add hover at the end of methods
+			} else if (height + 50 < nav.getAltitude()){
+				System.out.println("Going down");
+				System.out.println("Current altitude: " + nav.getAltitude());
+				cmd.down(speed).doFor(20);
+			} else {
+				System.out.println("Current altitude: " + nav.getAltitude());
+			}
+		}
+	}
+	
+	
 	
 	public void findCircleCenter(Circle circle){
 		
