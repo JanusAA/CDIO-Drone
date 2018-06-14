@@ -31,18 +31,12 @@ public class GUITest {
 		drone.start();
 		drone.getCommandManager().setVideoChannel(VideoChannel.HORI);
 		
-		DroneCommander cmd = new DroneCommander((ARDrone) drone, SPEED);
-
 		droneGUI gui = new droneGUI(drone, this);
 		
 		circles = new CircleScanner();
 		circles.addListener(gui);
 		scanner = new QRCode();
 		scanner.addListener(gui);
-		
-		rect = new Rectangle();
-		rect.addListener(gui);
-		
 		
 		drone.getVideoManager().addImageListener(scanner);
 		drone.getVideoManager().addImageListener(gui);

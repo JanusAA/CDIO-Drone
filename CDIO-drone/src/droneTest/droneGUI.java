@@ -47,10 +47,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 	private GUITest main;
 	private IARDrone drone;
 	
-	private Circle[] circles; //testing this
-	private ArrayList<Rect> rectangles;
 	private int imgScale = 1;
-	
 	
 	private BufferedImage image = null;
 	private Result result;
@@ -61,11 +58,8 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 	
 	private JPanel videoPanel;
 	
-	private Timer timer = new Timer();
-	private long gameStartTimestamp = System.currentTimeMillis();
 	private String gameTime = "0:00";
 	
-	private boolean gameOver = false;
 	
 	public droneGUI(final IARDrone drone, GUITest main)
 	{
@@ -73,6 +67,8 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
         
 		this.main = main;
 		this.drone = drone;
+		
+		
 		
 		setSize(GUITest.IMAGE_WIDTH, GUITest.IMAGE_HEIGHT);
         setVisible(true);
@@ -182,6 +178,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 						}
         			
         			
+<<<<<<< HEAD
         			//Draw rectangles
 //        			if (rectangles != null)
 //        				for (Rect rec : rectangles) {
@@ -203,6 +200,8 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 //        				g.drawString(str, (getWidth() / 2) - (adv / 2), (getHeight() / 2) - (hgt / 2) - 50); // draw text centered
 //        			}
         			
+=======
+>>>>>>> DroneCommander
         			// draw the time
     				g.setColor(Color.RED);
     				g.setFont(timeFont);
@@ -251,6 +250,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 		});
     }
 	
+<<<<<<< HEAD
 //	private void startGameTimeCounter()
 //	{
 //		gameStartTimestamp = System.currentTimeMillis();
@@ -275,6 +275,9 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 //		timer.cancel();
 //	}
 
+=======
+	
+>>>>>>> DroneCommander
 
 	@Override
 	public void circlesUpdated(Circle[] circles) {
@@ -298,6 +301,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 				}
 			}
 			
+<<<<<<< HEAD
 			// now check if all shreds have been found and if so, set the gameOver flag
 			boolean isGameOver = true;
 			for (int i=0; i < shredsFound.length; i++)
@@ -310,14 +314,21 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 			{
 				gameOver = true;
 			}
+=======
+		
+>>>>>>> DroneCommander
 		}
 	}
 
+
 	@Override
 	public void rectanglesUpdated(ArrayList<Rect> rectangles) {
-		this.rectangles = rectangles;
+		// TODO Auto-generated method stub
 		
 	}
+
+	
+	
 
 
 }

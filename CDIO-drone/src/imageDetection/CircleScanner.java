@@ -16,15 +16,12 @@ public class CircleScanner implements ImageListener {
 
 	private ArrayList<CircleListener> listeners = new ArrayList<CircleListener>();
 	private long imageCounter = 0;
-	private int framesWanted = 5; // Checks every 5th frame
-	private static int blurLevel = 9; // Amount of blurring,
 	private static double dp = 1.1;
 	private static int minDist = 50; // Distance between centers
 	
 	//Method for scanning for circles in a matrix.
 	public static Circle[] scanForCircles(Mat image){	
 	Size imgSize = new Size(0,0);
-	if (image.size().height > 1200)
 			Imgproc.resize(image, image, imgSize, 0.5,0.5,1);
 	
     Mat gray = image.clone();
@@ -42,7 +39,6 @@ public class CircleScanner implements ImageListener {
     
     for(int i = 0; i < circles.cols(); i++){
     	circlePoints = circles.get(0, i);
-    	System.out.println("Circle put in array");
     	cir[i] = new Circle(circlePoints[0], circlePoints[1], circlePoints[2]);
     }
     		
