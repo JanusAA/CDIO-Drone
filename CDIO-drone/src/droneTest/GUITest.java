@@ -33,15 +33,27 @@ public class GUITest {
 		
 		droneGUI gui = new droneGUI(drone, this);
 		
+		DroneCommander cmd = new DroneCommander((ARDrone) drone, SPEED, gui);
+		
 		circles = new CircleScanner();
 		circles.addListener(gui);
 		scanner = new QRCode();
 		scanner.addListener(gui);
+		circles.addListener(cmd);
 		
 		drone.getVideoManager().addImageListener(scanner);
 		drone.getVideoManager().addImageListener(gui);
 		drone.getVideoManager().addImageListener(circles);
 		drone.getVideoManager().addImageListener(rect);
+		
+		cmd.takeOff();
+//		cmd.increaseAltitude(30, 2500);
+		cmd.hover();
+//		cmd.flyForward(20,1500);
+		cmd.hover();
+		cmd.hover();
+		cmd.Landing();
+		
 	}
 	
 

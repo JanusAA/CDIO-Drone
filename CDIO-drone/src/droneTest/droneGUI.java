@@ -31,6 +31,7 @@ import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 
 import QR.QRListener;
+import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.navdata.ControlState;
 import de.yadrone.base.navdata.DroneState;
@@ -38,6 +39,7 @@ import de.yadrone.base.navdata.StateListener;
 import de.yadrone.base.video.ImageListener;
 import imageDetection.Circle;
 import imageDetection.CircleListener;
+import imageDetection.CircleScanner;
 import imageDetection.RectangleListener;
 
 public class droneGUI extends JFrame implements ImageListener, CircleListener, RectangleListener, QRListener{
@@ -47,6 +49,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 	private GUITest main;
 	private IARDrone drone;
 	
+	public static Circle[] circles;
 	private int imgScale = 1;
 	
 	private BufferedImage image = null;

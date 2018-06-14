@@ -39,6 +39,7 @@ public class QRCode implements ImageListener
    	 try
    	 {
    		 scanResult = reader.decode(bitmap);
+//   		 System.out.println("QRCodeFound");
 
    		 ResultPoint[] points = scanResult.getResultPoints();
    		 ResultPoint a = points[1]; // top-left
