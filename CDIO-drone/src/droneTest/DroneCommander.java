@@ -13,8 +13,6 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
-
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.command.CommandManager;
 import imageDetection.Circle;
@@ -33,7 +31,6 @@ public class DroneCommander implements CircleListener{
 	private droneGUI dronegui = null;
 	
 	private int speed = 30;
-	private int slowspeed = 2;
 	private int slowspeed = 5;
 	private int slowtime = 50;
 	private double ErrorMargin = 35;
@@ -45,13 +42,12 @@ public class DroneCommander implements CircleListener{
 	
 	private double midPoint_x = GUITest.IMAGE_WIDTH/2;
 	private double midPoint_y = GUITest.IMAGE_HEIGHT/2;
-	private double max_radius = 125;
+
 	private double max_radius = 140;
 	
 	private Circle[] circles;
 	
 		
-	public DroneCommander(ARDrone drone, int speed){
 	public DroneCommander(ARDrone drone, int speed, droneGUI gui){
 		this.drone = drone;
 		this.speed = speed;	
@@ -170,6 +166,7 @@ public class DroneCommander implements CircleListener{
 	 */
 	public void flyBackward(int speed, int ms){
 		cmd.backward(speed).doFor(ms);
+	}
 	public void flyBackward(int speed){
 		cmd.backward(speed).doFor(slowtime);
 	}
@@ -196,24 +193,6 @@ public class DroneCommander implements CircleListener{
 		return findCircle;
 	}
 	
-	public boolean CircleInCenter(Circle circle){
-		boolean inCenter = false;
-				
-		if(circle.x <= midPoint_x + ErrorMargin && circle.x >= midPoint_x - ErrorMargin){
-			if(circle.y <= midPoint_y + ErrorMargin && circle.y >= midPoint_y - ErrorMargin){
-				if(circle.r <= max_radius + (ErrorMargin/2) && circle.r >= max_radius - (ErrorMargin/2)){
-					inCenter = true;
-				}
-			}
-		}
-		return inCenter;
-	}
-	
-	/**
-	 * Fly the drone to designated height in mm, keeps adjusting until the designated height is within 5cm.
-	 * @param height
-	 */
-	
 	public void moveToAltitude(int height){
 		while(true){
 			if (height - 50 > nav.getAltitude()) {
@@ -231,31 +210,30 @@ public class DroneCommander implements CircleListener{
 		}
 	}
 	
+	public boolean CircleInCenter(Circle circle){
+		boolean inCenter = false;
+				
+		if(circle.x <= midPoint_x + ErrorMargin && circle.x >= midPoint_x - ErrorMargin){
+			if(circle.y <= midPoint_y + ErrorMargin && circle.y >= midPoint_y - ErrorMargin){
+				if(circle.r <= max_radius + (ErrorMargin/2) && circle.r >= max_radius - (ErrorMargin/2)){
+					inCenter = true;
+				}
+			}
+		}
+		return inCenter;
+	}
 	
-	
-	public void findCircleCenter(Circle circle){
 	public void findCircleCenter(Circle circle) {
 		
-		double circle_x = circle.getX();
-		double circle_y = circle.getY();
-		double circle_r = circle.getRadius();
 		double circle_x = circle.x;
 		double circle_y = circle.y;
 		double circle_r = circle.r;
 		
-		if(circle_x > midPoint_x){
-			flyRight(slowspeed);
-		}
-		else if(circle_x < midPoint_x){
-			flyLeft(slowspeed);
-		}
-		if(circle_y > midPoint_y){
-			decreaseAltitude(slowspeed);		
 		if(methodecount == 0){
 			if(circle.x <= midPoint_x + (ErrorMargin/2) == false && circle.x >= midPoint_x - (ErrorMargin/2) == false){
 			if(circle_x > midPoint_x){
 				flyRight(slowspeed);
-				System.out.println("hï¿½jre");
+				System.out.println("højre");
 			}
 			else if(circle_x < midPoint_x){
 				flyLeft(slowspeed);
@@ -263,8 +241,6 @@ public class DroneCommander implements CircleListener{
 			}}
 			methodecount = 1;
 		}
-		else if(circle_y < midPoint_y){
-			increaseAltitude(slowspeed);
 		else if(methodecount ==1){
 			if(circle.y <= midPoint_y + (ErrorMargin/2) == false && circle.y >= midPoint_y - (ErrorMargin/2) == false){
 			if(circle_y > midPoint_y){
@@ -277,8 +253,6 @@ public class DroneCommander implements CircleListener{
 			}}
 			methodecount = 2;
 		}
-		if(circle_r > max_radius){
-			flyBackward(slowspeed);
 		else if(methodecount == 2){
 			if(circle.r <= max_radius + (ErrorMargin/2) == false && circle.r >= max_radius - (ErrorMargin/2) == false)
 			if(circle_r > max_radius){
@@ -298,31 +272,10 @@ public class DroneCommander implements CircleListener{
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		else if(circle_r < max_radius){
-			flyForward(slowspeed);
 		methodecount = 0;
 		}
-		
 	}
 	
-	public void flythroughCircle(){
-		int count = 0;
-		
-	if (droneGUI.circles != null)
-		System.out.println("");
-//			for (Circle c : circles) {
-//				findCircleCenter(c);
-//				count++;	
-//			}
-//		if(count >= 5){
-//			System.out.println("count is: " + count);
-//			Landing();
-//		}
-//		else{
-//			System.out.println("count failed");
-//			Landing();
-//		}
-		
 	public void flythroughCircle(Circle[] circle){		
 	if (circle != null){
 //		System.out.println("fandt en cirkel");
@@ -347,11 +300,11 @@ public class DroneCommander implements CircleListener{
 //			}	
 		}
 	}
+	
+	
 
 	@Override
 	public void circlesUpdated(Circle[] circle) {
-		this.circles = circle;
-		
 		if(findCircle){
 		flythroughCircle(circle);
 		}
@@ -359,7 +312,4 @@ public class DroneCommander implements CircleListener{
 			System.out.println("fuck yeah!");
 		}
 	}
-	
-
-	
 }
