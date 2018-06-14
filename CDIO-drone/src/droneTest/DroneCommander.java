@@ -1,3 +1,8 @@
+/*
+ * Author: Simon Christiansen
+ */
+
+
 package droneTest;
 
 import java.awt.Color;
@@ -191,7 +196,7 @@ public class DroneCommander implements CircleListener{
 		else if(methodecount == 3){
 			
 		try {
-			Thread.currentThread().sleep(20);
+			Thread.currentThread().sleep(25);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
