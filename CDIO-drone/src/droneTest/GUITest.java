@@ -46,22 +46,18 @@ public class GUITest {
 		drone.getVideoManager().addImageListener(rect);
 		
 		cmd.takeOff();
-//		cmd.increaseAltitude(30, 2500);
 		cmd.hover();
-//		cmd.flyForward(20,1500);
 		cmd.hover();
 		cmd.hover();
 		cmd.Landing();
 		
 	}
 	
-
 	public void enableAutoControl(boolean selected) {
 
 	}
 	public static void main(String[] args)
 	{
-		//System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		new GUITest();
 	}
 }
