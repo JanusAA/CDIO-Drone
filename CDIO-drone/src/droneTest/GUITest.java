@@ -31,14 +31,13 @@ public class GUITest {
 		drone.start();
 		drone.getCommandManager().setVideoChannel(VideoChannel.HORI);
 		
-		droneGUI gui = new droneGUI(drone, this);
+		droneGUI gui = new droneGUI(drone);
 		
 		DroneCommander cmd = new DroneCommander((ARDrone) drone, SPEED, gui);
 		
 		circles = new CircleScanner();
 		circles.addListener(gui);
 		scanner = new QRCode();
-		scanner.addListener(gui);
 		circles.addListener(cmd);
 		
 		drone.getVideoManager().addImageListener(scanner);
