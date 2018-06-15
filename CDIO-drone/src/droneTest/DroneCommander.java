@@ -13,6 +13,12 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import com.google.zxing.Result;
+import com.google.zxing.ResultPoint;
+
+import controllers.DroneStateController;
+import controllers.DroneStateController.Command;
+import controllers.MainController;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.command.CommandManager;
 import imageDetection.Circle;
@@ -28,6 +34,8 @@ public class DroneCommander implements CircleListener{
 	private ARDrone drone = null;
 	private CommandManager cmd = null;
 	private droneGUI dronegui = null;
+	private DroneStateController State = null;
+	private MainController control = null;
 	
 	private int speed = 30;  // The base velocity in %
 	private int slowspeed = 5;  //  The velocity used for centralizing in %
@@ -53,10 +61,10 @@ public class DroneCommander implements CircleListener{
 		 * @param speed
 		 * @param gui
 		 */
-	public DroneCommander(ARDrone drone, int speed, droneGUI gui){
+	public DroneCommander(ARDrone drone, int speed, DroneStateController state){
 		this.drone = drone;
-		this.speed = speed;	
-		this.dronegui = gui;
+		this.speed = speed;
+		this.State = state;
 		cmd = drone.getCommandManager();
 	}
 	
@@ -455,5 +463,144 @@ public class DroneCommander implements CircleListener{
 	@Override
 	public void circlesUpdated(Circle[] circles) {
 		this.circles = circles;
+	}
+	
+	public void searchForQR() throws InterruptedException{
+		//Search for QR method:
+		moveToAltitude(1000);
+		Result tag = control.getTag();
+		if (tag != null){
+			State.setState(Command.ValidateQR);
+		}
+		moveToAltitude(1000);
+		TurnRight(30, 40);
+		
+		Thread.currentThread().sleep(20);
+		//TODO: Might need to sleep the controller, and wait for the drone to spin. 
+
+	}
+	
+	public void centralizeQR() throws InterruptedException {
+		//Relying on code from API paperchase:
+		Result tag = control.getTag();
+		String tagText;
+		ResultPoint[] points;
+		
+		synchronized(tag){
+			points = tag.getResultPoints();
+			tagText = tag.getText();
+		}
+
+		
+		float x = points[1].getX();
+		float y = points[1].getY();
+		
+		if ((control.getTagOrientation() > 10) && (control.getTagOrientation() < 180)){
+			System.out.println("Spin left");
+			TurnLeft(10, 500);
+		}
+		else if ((control.getTagOrientation() < 350) &&(control.getTagOrientation() > 180)){
+			System.out.println("Spin right");
+			TurnRight(10, 500);
+		}
+		else if (x < (midPoint_x - control.TOLERANCE)){
+			System.out.println("Go left");
+			flyLeft(5, 500);
+		}
+		else if (x > (midPoint_x + control.TOLERANCE)){
+			System.out.println("Go Right");
+			flyRight(5, 500);
+		}
+		else if (y < (midPoint_y - control.TOLERANCE)){
+			System.out.println("Go forward");
+			flyForward(5, 500);
+		}
+		else if (y > (midPoint_y + control.TOLERANCE)){
+			System.out.println("Go forward");
+			flyBackward(5, 500);
+		}
+		else{
+			System.out.println("QR tag centered");
+			
+			State.setState(Command.FlyThrough);
+			Thread.currentThread().sleep(600);
+		}
+	}
+	
+	public void validateQR() throws InterruptedException{
+		System.out.println("State: Validate QR: Validating QR.. ");
+		Result tag = control.getTag();
+		if (tag == null){
+			System.out.println("Tag lost");
+			State.setState(Command.LostQR);
+		}
+		if (tag != null){
+			if(control.getGates().get(control.getGate()).equals(tag.getText())){
+				System.out.println("Valid port with number: " + tag.getText());
+				State.setState(Command.CentralizeQR);
+			}
+			// Checks if the gate is a QR which starts with p/P:
+			else if ("p" != (tag.getText().substring(0, 1).toLowerCase())){
+				System.out.println("WallMarks");
+				//TODO: implement action the drone shall take if a wallmark is read. 
+			
+		}else {
+				System.out.println("Invalid port number: " +tag.getText());
+				State.setState(Command.SearchForQR);
+			}
+		}
+		Thread.currentThread().sleep(20);
+	}
+	
+	public void updateGate(){
+		System.out.println("Updating next gate..");
+		//Updating the gate number which is searched for: 
+		control.setGate();;
+		
+		System.out.println("Next gate is: p.0" + control.getGate());
+		
+		if(control.getGate() == control.getMaxGate()){
+			System.out.println("Course complete.. searching for landing spot");
+			drone.hover();
+			State.setState(Command.Land);
+		}
+	}
+	
+	public void lostQR() throws InterruptedException{
+		System.out.println("State: Lost QR.. ");
+		moveToAltitude(1000);
+		Result tag = control.getTag();
+		if (tag != null){
+			State.setState(Command.ValidateQR);
+
+		} else {
+			int moves = 0;
+			int tries = 0;
+
+			while (tries < 6){
+				switch (moves){
+
+				case 0: 
+					flyBackward(10, 150);
+					moves = 1;
+					tries++;
+					break;
+
+				case 1:
+					flyRight(10, 100);
+					moves = 2;
+					tries++;
+					break;
+
+				case 2:
+					flyLeft(10, 200);
+					moves = 0;
+					tries++;
+					break;
+				}
+				Thread.currentThread().sleep(100);
+			}
+			State.setState(Command.SearchForQR);
+		}
 	}
 }

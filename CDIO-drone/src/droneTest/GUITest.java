@@ -38,7 +38,7 @@ public class GUITest {
 		
 		droneGUI gui = new droneGUI(drone);
 		
-		DroneCommander cmd = new DroneCommander((ARDrone) drone, SPEED, gui);
+		DroneCommander cmd = new DroneCommander((ARDrone) drone, SPEED, dsc);
 		
 		circles = new CircleScanner();
 		circles.addListener(gui);
@@ -57,7 +57,7 @@ public class GUITest {
 		scan.nextLine();
 		while(true){
 		try {
-			dsc.centralizeQR();
+		cmd.centralizeQR();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

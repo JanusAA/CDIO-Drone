@@ -23,6 +23,11 @@ public class MainController implements QRListener {
 	
 	public final static int TOLERANCE = 40;
 	
+	//Defines the start gate:
+	private int nextGate = 0;
+	//Defines the maximum number of gates: 
+	private final int maxGates = 5;
+	
 	private Result tag;
 	private float tagOrientation;
 	
@@ -72,7 +77,7 @@ public class MainController implements QRListener {
 	 * Get method for tag
 	 * @return tag, String read from QR
 	 */
-		 Result getTag() {
+		public Result getTag() {
 			return tag; 
 		}
 		
@@ -83,7 +88,7 @@ public class MainController implements QRListener {
 		 * Method to get gates, 
 		 * @return ArrayList with gatenumbers (strings equivalent to QR codes on gates)
 		 */
-		ArrayList<String> getGates(){
+		public ArrayList<String> getGates(){
 			return gates;
 		}
 
@@ -99,5 +104,18 @@ public class MainController implements QRListener {
 	public static void main(String[] args) {
 		new MainController();
 	}
+	
+	public void setGate(){
+		nextGate++;
+	}
+	
+	public int getGate(){
+		return nextGate;
+	}
+	
+	public int getMaxGate(){
+		return maxGates;
+	}
+
 		
 }
