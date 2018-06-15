@@ -339,14 +339,14 @@ public class DroneCommander implements CircleListener{
 	 * also to limit amount of commands called
 	 * @param circle
 	 */
-	public void findCircleCenter(Circle circle) {
+	public void findCircleCenter() {
 		
-		double circle_x = circle.x;
-		double circle_y = circle.y;
-		double circle_r = circle.r;
+		double circle_x = circles[0].x;
+		double circle_y = circles[0].y;
+		double circle_r = circles[0].r;
 		
 		if(methodecount == 0){
-			if(circle.x <= midPoint_x + (ErrorMargin/2) == false && circle.x >= midPoint_x - (ErrorMargin/2) == false){
+			if(circle_x <= midPoint_x + (ErrorMargin/2) == false && circle_x >= midPoint_x - (ErrorMargin/2) == false){
 			if(circle_x > midPoint_x){
 				flyRight(slowspeed);
 				System.out.println("højre");
@@ -358,7 +358,7 @@ public class DroneCommander implements CircleListener{
 			methodecount = 1;
 		}
 		else if(methodecount ==1){
-			if(circle.y <= midPoint_y + (ErrorMargin/2) == false && circle.y >= midPoint_y - (ErrorMargin/2) == false){
+			if(circle_y <= midPoint_y + (ErrorMargin/2) == false && circle_y >= midPoint_y - (ErrorMargin/2) == false){
 			if(circle_y > midPoint_y){
 				decreaseAltitude(slowspeed);
 				System.out.println("ned");
@@ -370,7 +370,7 @@ public class DroneCommander implements CircleListener{
 			methodecount = 2;
 		}
 		else if(methodecount == 2){
-			if(circle.r <= max_radius + (ErrorMargin/2) == false && circle.r >= max_radius - (ErrorMargin/2) == false)
+			if(circle_r <= max_radius + (ErrorMargin/2) == false && circle_r >= max_radius - (ErrorMargin/2) == false)
 			if(circle_r > max_radius){
 				flyBackward(slowspeed);
 				System.out.println("bagud");
@@ -400,7 +400,7 @@ public class DroneCommander implements CircleListener{
 	 */
 	public void flythroughCircle(Circle[] circle){		
 	if (circle != null){
-				findCircleCenter(circle[0]);
+				findCircleCenter();
 					if(CircleInCenter(circle[0])){
 						count++;
 					}
@@ -427,13 +427,9 @@ public class DroneCommander implements CircleListener{
 	 * if the boolean findcircle is true
 	 * this method calls flythroughCircle
 	 */
+	
 	@Override
-	public void circlesUpdated(Circle[] circle) {
-		if(findCircle){
-		flythroughCircle(circle);
-		}
-		else{
-			System.out.println("fuck yeah!");
-		}
+	public void circlesUpdated(Circle[] circles) {
+		this.circles = circles;
 	}
 }
