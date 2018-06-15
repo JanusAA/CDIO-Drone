@@ -17,6 +17,7 @@ import javax.swing.SwingUtilities;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 
+import QR.QRListener;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.exception.ARDroneException;
 import de.yadrone.base.exception.IExceptionListener;
@@ -28,7 +29,7 @@ import de.yadrone.base.video.ImageListener;
 import imageDetection.Circle;
 import imageDetection.CircleListener;
 
-public class droneGUI extends JFrame implements ImageListener, CircleListener{
+public class droneGUI extends JFrame implements ImageListener, CircleListener, QRListener{
 	
 
 	private static final long serialVersionUID = 45532;
@@ -101,7 +102,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener{
     				
         			
     				// draw triangle if tag is visible
-        			if(qr){
+        			//if(qr){
         			if (result != null)
         			{
         				ResultPoint[] points = result.getResultPoints();
@@ -124,7 +125,8 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener{
         				{
         					result = null;
         				}
-        			}}
+        			//}
+        			}
         			
         			//Draw circles
         			if(circle){
@@ -200,7 +202,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener{
 		if (result != null)
 		{
 			this.result = result;
-			this.orientation = orientation + "°";
+			this.orientation = orientation + "ï¿½";
 			
 		}}
 	
