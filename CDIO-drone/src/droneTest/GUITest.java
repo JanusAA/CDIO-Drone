@@ -1,5 +1,7 @@
 package droneTest;
 
+import java.util.Scanner;
+
 import org.opencv.core.Core;
 
 import com.google.zxing.Result;
@@ -26,6 +28,7 @@ public class GUITest {
 	private CircleScanner circles = null;
 	private QRCode scanner = null;
 	private DroneStateController dsc = null;
+	private Scanner scan=new Scanner(System.in);
 	
 	public GUITest() {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -45,6 +48,8 @@ public class GUITest {
 		drone.getVideoManager().addImageListener(scanner);
 		drone.getVideoManager().addImageListener(gui);
 		drone.getVideoManager().addImageListener(circles);
+		
+		scan.nextLine();
 		
 		cmd.takeOff();
 		cmd.moveToAltitude(1400);
