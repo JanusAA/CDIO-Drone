@@ -10,19 +10,12 @@ public class DroneAlttitudeListener
 {
 	private int altitude;
 
-	public DroneAlttitudeListener(IARDrone drone)
-	{
-		drone.getNavDataManager().addAttitudeListener(new AttitudeListener() {
+	
+	public int getAltitude() {
+		return altitude;
+	}
 
-			public void attitudeUpdated(float pitch, float roll, float yaw)
-			{
-				System.out.println("Pitch: " + pitch + " Roll: " + roll + " Yaw: " + yaw);
-			}
-
-			public void attitudeUpdated(float pitch, float roll) { }
-			public void windCompensation(float pitch, float roll) { }
-		});
-		
+	public void addAltListener(IARDrone drone){
 		drone.getNavDataManager().addAltitudeListener(new AltitudeListener(){
 			@Override
 			public void receivedAltitude(int a) {
@@ -35,19 +28,24 @@ public class DroneAlttitudeListener
 			}
 			
 		});
+	}
+	public void removeAltListener(IARDrone drone){
+		drone.getNavDataManager().removeAltitudeListener(new AltitudeListener(){
 
-		drone.getNavDataManager().addBatteryListener(new BatteryListener() {
-
-			public void batteryLevelChanged(int percentage)
-			{
-				System.out.println("Battery: " + percentage + " %");
+			@Override
+			public void receivedAltitude(int arg0) {
+				// TODO Auto-generated method stub
+				
 			}
 
-			public void voltageChanged(int vbat_raw) { }
+			@Override
+			public void receivedExtendedAltitude(Altitude arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
 		});
-	}
-	public int getAltitude() {
-		return altitude;
+
 	}
 
 }

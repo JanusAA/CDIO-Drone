@@ -27,7 +27,6 @@ public class DroneCommander implements CircleListener{
 	
 	private ARDrone drone = null;
 	private CommandManager cmd = null;
-	private DroneAlttitudeListener nav;
 	private droneGUI dronegui = null;
 	
 	private int speed = 30;  // The base velocity in %
@@ -58,7 +57,6 @@ public class DroneCommander implements CircleListener{
 		this.speed = speed;	
 		this.dronegui = gui;
 		cmd = drone.getCommandManager();
-		nav = new DroneAlttitudeListener(drone);
 	}
 	
 	/**
@@ -295,6 +293,8 @@ public class DroneCommander implements CircleListener{
 	
 	
 	public void moveToAltitude(int height){
+		DroneAlttitudeListener nav = new DroneAlttitudeListener();
+		nav.addAltListener(drone);
 		while(true){
 			if (height - 50 > nav.getAltitude()) {
 				System.out.println("Current altitude: " + nav.getAltitude());
@@ -308,7 +308,9 @@ public class DroneCommander implements CircleListener{
 			} else {
 				System.out.println("Current altitude: " + nav.getAltitude());
 			}
+			nav.removeAltListener(drone);
 		}
+		
 	}
 	
 	/**
@@ -349,7 +351,7 @@ public class DroneCommander implements CircleListener{
 			if(circle_x <= midPoint_x + (ErrorMargin/2) == false && circle_x >= midPoint_x - (ErrorMargin/2) == false){
 			if(circle_x > midPoint_x){
 				flyRight(slowspeed);
-				System.out.println("højre");
+				System.out.println("hï¿½jre");
 			}
 			else if(circle_x < midPoint_x){
 				flyLeft(slowspeed);
