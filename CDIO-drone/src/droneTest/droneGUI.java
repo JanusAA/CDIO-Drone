@@ -195,4 +195,13 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener{
 		circle = TorF;
 	}
 	
+	public void onTag(Result result, float orientation)
+	{
+		if (result != null)
+		{
+			this.result = result;
+			this.orientation = orientation + "°";
+			
+		}}
+	
 }

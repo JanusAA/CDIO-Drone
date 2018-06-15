@@ -21,7 +21,6 @@ public class GUITest {
 	public final static int IMAGE_HEIGHT = 360; // 360 or 720
 	
 	public final static int TOLERANCE = 40;
-	private Scanner scan = new Scanner(System.in);
 	
 	public final static int SPEED = 30;
 	
@@ -29,6 +28,7 @@ public class GUITest {
 	private CircleScanner circles = null;
 	private QRCode scanner = null;
 	private DroneStateController dsc = null;
+	private Scanner scan = new Scanner(System.in);
 	
 	public GUITest() {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -51,6 +51,7 @@ public class GUITest {
 		drone.getVideoManager().addImageListener(circles);
 		
 		scan.nextLine();
+
 		cmd.takeOff();
 		cmd.hover();
 		scan.nextLine();
