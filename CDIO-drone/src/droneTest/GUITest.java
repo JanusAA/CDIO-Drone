@@ -2,14 +2,11 @@ package droneTest;
 
 import org.opencv.core.Core;
 
+import QR.QRCode;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.VideoChannel;
-import de.yadrone.base.command.VideoCodec;
 import imageDetection.CircleScanner;
-import imageDetection.Rectangle;
-import QR.QRCode;
-import QR.QRListener;
 
 public class GUITest {
 	
@@ -22,7 +19,6 @@ public class GUITest {
 	
 	private IARDrone drone = null;
 	private CircleScanner circles = null;
-	private Rectangle rect = null;
 	private QRCode scanner = null;
 	
 	public GUITest() {
@@ -43,18 +39,11 @@ public class GUITest {
 		drone.getVideoManager().addImageListener(scanner);
 		drone.getVideoManager().addImageListener(gui);
 		drone.getVideoManager().addImageListener(circles);
-		drone.getVideoManager().addImageListener(rect);
 		
 		cmd.takeOff();
 		cmd.hover();
-		cmd.hover();
-		cmd.hover();
 		cmd.Landing();
 		
-	}
-	
-	public void enableAutoControl(boolean selected) {
-
 	}
 	public static void main(String[] args)
 	{
