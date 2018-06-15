@@ -6,6 +6,7 @@ import com.google.zxing.Result;
 
 import QR.QRCode;
 import QR.QRListener;
+import controllers.DroneStateController.Command;
 import de.yadrone.base.ARDrone;
 
 
@@ -28,8 +29,15 @@ public class MainController implements QRListener {
 	private ARDrone drone = null;
 	private DroneStateController droneStateController;
 	private QRCode scanner = null;
-	//ArrayList to hold gatenumbers p0.1, p0.2 etc..
+	//ArrayList to hold gatenumbers p.00, p.01 etc..
 	private ArrayList<String> gates = new ArrayList<String>();
+	public boolean stop;
+	
+	private DroneStateController dsc;
+	
+	public DroneStateController getDsc() {
+		return dsc;
+	}
 
 
 
@@ -38,9 +46,26 @@ public class MainController implements QRListener {
 		for(int i = 0; i < 7; i++){
 			gates.add("p.0" + i);
 		}
-
 		
 		
+	}
+	
+	public void run() {
+		this.stop = false;
+		dsc = new DroneStateController();
+		dsc.state = Command.TakeOff;
+		while (!stop){
+			try {
+				if((tag != null) && (System.currentTimeMillis() - tag.getTimestamp() > 2000)){
+					System.out.println("Resetting tag - ms our of bounds");
+					tag = null;
+				}
+				dsc.commands(dsc.state);
+				Thread.currentThread().sleep(200);
+			} catch (InterruptedException e){
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**

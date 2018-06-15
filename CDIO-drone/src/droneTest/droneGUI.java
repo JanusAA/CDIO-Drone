@@ -121,18 +121,18 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
         			// now draw the camera image
         			g.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
         			
-        			// draw "Shreds to find"
-    				g.setColor(Color.RED);
-    				g.setFont(tagFont);
-    				g.drawString("Shreds to find", 10, 20);
-    				for (int i=0; i < shredsToFind.length; i++)
-    				{
-    					if (shredsFound[i])
-    					g.setColor(Color.GREEN.darker());
-    					else
-    						g.setColor(Color.RED);
-    					g.drawString(shredsToFind[i], 30, 40 + (i*20));
-    				}
+//        			// draw "Shreds to find"
+//    				g.setColor(Color.RED);
+//    				g.setFont(tagFont);
+//    				g.drawString("Shreds to find", 10, 20);
+//    				for (int i=0; i < shredsToFind.length; i++)
+//    				{
+//    					if (shredsFound[i])
+//    					g.setColor(Color.GREEN.darker());
+//    					else
+//    						g.setColor(Color.RED);
+//    					g.drawString(shredsToFind[i], 30, 40 + (i*20));
+//    				}
     				
         			// draw tolerance field (rectangle)
         			g.setColor(Color.RED);
@@ -181,12 +181,13 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, R
 						}
         			
         			
+ 
 
         			
-        			// draw the time
-    				g.setColor(Color.RED);
-    				g.setFont(timeFont);
-    				g.drawString(gameTime, getWidth() - 50, 20);
+//        			// draw the time
+//    				g.setColor(Color.RED);
+//    				g.setFont(timeFont);
+//    				g.drawString(gameTime, getWidth() - 50, 20);
         		}
         		else
         		{

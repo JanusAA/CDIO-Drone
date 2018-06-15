@@ -86,24 +86,28 @@ public class DroneStateController {
 
 	}
 
-	public void hover(){
+	public void hover() throws InterruptedException{
 		//Makes the drone hover (used to wait for further instructions)
 		System.out.println("State: Hover");
 		drone.hover();
 		state = Command.SearchForQR;
+		Thread.currentThread().sleep(10);
 	}
 
-	public void searchForQR(){
+	public void searchForQR() throws InterruptedException{
 		//Search for QR method:
 		System.out.println("State: Searching for QR..");
+		drone.moveToAltitude(1000);
 		Result tag = control.getTag();
 		if (tag != null){
-			System.out.println("QR located");
+			System.out.println("QR located"); 
 			state = Command.ValidateQR;
 		}
 		drone.moveToAltitude(1000);
 		System.out.println("Spinning");
 		drone.TurnRight(30, 40);
+		
+		Thread.currentThread().sleep(20);
 		//TODO: Might need to sleep the controller, and wait for the drone to spin. 
 
 	}
@@ -139,6 +143,7 @@ public class DroneStateController {
 					tries++;
 					break;
 				}
+				Thread.currentThread().sleep(200);
 			}
 			state = Command.SearchForQR;
 		}
@@ -156,11 +161,18 @@ public class DroneStateController {
 			if(control.getGates().get(nextGate).equals(tag.getText())){
 				System.out.println("Valid port with number: " + tag.getText());
 				state = Command.CentralizeQR;
-			} else {
+			}
+			// Checks if the gate is a QR which starts with p/P:
+			else if ("p" != (tag.getText().substring(0, 1).toLowerCase())){
+				System.out.println("WallMarks");
+				//TODO: implement action the drone shall take if a wallmark is read. 
+			
+		}else {
 				System.out.println("Invalid port number: " +tag.getText());
 				state = Command.SearchForQR;
 			}
 		}
+		Thread.currentThread().sleep(20);
 	}
 	
 	public void centralizeQR() throws InterruptedException {
@@ -209,16 +221,18 @@ public class DroneStateController {
 			System.out.println("QR tag centered");
 			
 			state = Command.FlyThrough;
+			Thread.currentThread().sleep(600);
 		}
 	}
 	
 	
-	public void flyThrough() {
+	public void flyThrough() throws InterruptedException {
 		System.out.println("State: Centralizing on gate, and flying through.. ");
 		
 		//TODO: Method needs to be merged from other git branch.
 //		drone.setFindCircle(true);
 		state = Command.UpdateGate;
+		Thread.currentThread().sleep(700);
 	}
 	
 	public void updateGate(){
