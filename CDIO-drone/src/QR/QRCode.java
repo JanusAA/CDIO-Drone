@@ -25,7 +25,7 @@ public class QRCode implements ImageListener
     
     public void imageUpdated(BufferedImage image)
     {
-   	 if ((++imageCount % 2) == 0)
+   	 if ((++imageCount % 30) == 0)
    		 return;
    	 
    	 // try to detect QR code
