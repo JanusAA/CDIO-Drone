@@ -35,6 +35,7 @@ public class DroneCommander implements CircleListener{
 	private double ErrorMargin = 35;	// the Margin of Error in which the center of a circle can be fount
 	
 	private int count = 0;	//	The counter for amount of centered circles 
+	private int altcount = 0;
 	private int methodecount = 0;  // Count Used to limit the calls done in findCircleCenter
 	private int countmax = 6;	//	The amount of centered circles we need before flying through a circle
 	private boolean findCircle = true;	//	When true we look for circles
@@ -295,20 +296,27 @@ public class DroneCommander implements CircleListener{
 	public void moveToAltitude(int height){
 		DroneAlttitudeListener nav = new DroneAlttitudeListener();
 		nav.addAltListener(drone);
-		while(true){
-			if (height - 50 > nav.getAltitude()) {
-				System.out.println("Current altitude: " + nav.getAltitude());
-				System.out.println("Going up");
-				cmd.up(speed).doFor(20);
-				//May need to add hover at the end of methods
-			} else if (height + 50 < nav.getAltitude()){
-				System.out.println("Going down");
-				System.out.println("Current altitude: " + nav.getAltitude());
-				cmd.down(speed).doFor(20);
-			} else {
-				System.out.println("Current altitude: " + nav.getAltitude());
+		while(height + ErrorMargin > nav.getAltitude() || height - ErrorMargin < nav.getAltitude())
+		{
+			if (height - ErrorMargin > nav.getAltitude()) {
+				cmd.up(slowspeed).doFor(slowtime);
+			} 
+			else if (height + ErrorMargin < nav.getAltitude()){
+				cmd.down(slowspeed).doFor(slowtime);
+			} 
+			else 
+				altcount++;
+				if(altcount >= countmax){
+					return;
+				}
+			{
 			}
 			nav.removeAltListener(drone);
+			try {
+				Thread.currentThread().sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		
 	}
@@ -342,6 +350,9 @@ public class DroneCommander implements CircleListener{
 	 * @param circle
 	 */
 	public void findCircleCenter() {
+		
+		while(count <= countmax){
+			
 		
 		double circle_x = circles[0].x;
 		double circle_y = circles[0].y;
@@ -386,12 +397,23 @@ public class DroneCommander implements CircleListener{
 		else if(methodecount == 3){
 			
 		try {
-			Thread.currentThread().sleep(25);
+			Thread.currentThread().sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		methodecount = 0;
+		
+		if(CircleInCenter(circles[0])){
+			count++;
 		}
+		else{
+			count = 0;
+		}
+		
+		if(count >= countmax){
+			return;
+		}
+		}}
 	}
 	
 	/**

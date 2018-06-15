@@ -2,7 +2,12 @@ package droneTest;
 
 import org.opencv.core.Core;
 
+import com.google.zxing.Result;
+import com.google.zxing.ResultPoint;
+
 import QR.QRCode;
+import controllers.MainController;
+import controllers.DroneStateController;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.VideoChannel;
@@ -20,6 +25,7 @@ public class GUITest {
 	private IARDrone drone = null;
 	private CircleScanner circles = null;
 	private QRCode scanner = null;
+	private DroneStateController dsc = null;
 	
 	public GUITest() {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -41,8 +47,10 @@ public class GUITest {
 		drone.getVideoManager().addImageListener(circles);
 		
 		cmd.takeOff();
-		cmd.hover();
-		cmd.Landing();
+		cmd.moveToAltitude(1400);
+		while(true){
+			cmd.findCircleCenter();
+		}
 		
 	}
 	public static void main(String[] args)
