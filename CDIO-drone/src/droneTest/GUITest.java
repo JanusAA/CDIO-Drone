@@ -48,6 +48,12 @@ public class GUITest {
 		
 		cmd.takeOff();
 		cmd.moveToAltitude(1400);
+		try {
+			dsc.centralizeQR();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		while(true){
 			cmd.findCircleCenter();
 		}
