@@ -358,11 +358,15 @@ public class DroneCommander implements CircleListener{
 	 * also to limit amount of commands called
 	 * @param circle
 	 */
-	public void findCircleCenter(Circle circle) {
+	public void findCircleCenter() {
+		
+		while(count < countmax){
+			CircleScanner.updateCurrentCircle();
+			Circle circle = CircleScanner.getLastCircle();
 		
 			double circle_x = Math.abs(circle.x);
 			double circle_y = Math.abs(circle.y);
-			double circle_r = circle.r;
+			double circle_r = Math.abs(circle.r);
 			
 			double abs_dif_x = Math.abs(circle_x - midPoint_x);
 			double abs_dif_y = Math.abs(circle_y - midPoint_y);
@@ -413,8 +417,8 @@ public class DroneCommander implements CircleListener{
 //			}
 		
 			if(CircleInCenter(circles[0])){
-				System.out.println("FUCK YEAH 1 gang!");
 				count++;
+				System.out.println("FUCK YEAH " + count + " gang!");
 			}
 			else{
 				count = 0;
@@ -422,8 +426,9 @@ public class DroneCommander implements CircleListener{
 		
 			if(count >= countmax){
 				System.out.println("FUCK YEAH");
-				findCircle = false;
-			}
+//				findCircle = false;
+				return;
+			}}
 		}
 		
 		
@@ -617,11 +622,11 @@ public class DroneCommander implements CircleListener{
 
 	@Override
 	public void circlesUpdated(Circle[] circle) {
-		this.circles = circle;
-		if(circle[0].r > 30){
-		if(true){
-		findCircleCenter(circle[0]);
-		}
-		}
+//		this.circles = circle;
+//		if(circle[0].r > 30){
+//		if(true){
+//		findCircleCenter(circle[0]);
+//		}
+//		}
 	}
 }

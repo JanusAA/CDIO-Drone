@@ -16,11 +16,13 @@ public class CircleScanner implements ImageListener {
 
 	private ArrayList<CircleListener> listeners = new ArrayList<CircleListener>();
 	private long imageCounter = 0;
-	private int framesWanted = 15; // Checks every 5th frame
+	private int framesWanted = 15; // Checks every 15th frame
 	private static int blurLevel = 5; // Amount of blurring,
 	public static Circle[] cir;
 	private static double dp = 1.1;
 	private static int minDist = 50; // Distance between centers
+	private static boolean saveCircle = false;
+	private static Circle lastCircle = null;
 	
 	//Method for scanning for circles in a matrix.
 	public static Circle[] scanForCircles(Mat image){	
@@ -45,6 +47,10 @@ public class CircleScanner implements ImageListener {
     	circlePoints = circles.get(0, i);
     	//System.out.println("x: " + circlePoints[0] + " y: " + circlePoints[1] + " r: " + circlePoints[2]);
     	cir[i] = new Circle(circlePoints[0], circlePoints[1], circlePoints[2]);
+    }
+    
+    if(saveCircle){
+    	getCurrentCircle(cir[0]);
     }
     
 	return cir;
@@ -78,6 +84,23 @@ public class CircleScanner implements ImageListener {
 				Circle[] circles = scanForCirclesBuff(img);
 				for (CircleListener listener : listeners)
 					listener.circlesUpdated(circles);
+	}
+	
+	public static void setSaveCircle(boolean TorF){
+		saveCircle = TorF;
+	}
+	
+	public static void getCurrentCircle(Circle cir){
+		lastCircle = cir;
+		setSaveCircle(false);
+	}
+	
+	public static void updateCurrentCircle(){
+		setSaveCircle(true);
+	}
+	
+	public static Circle getLastCircle(){
+		return lastCircle;
 	}
 
 }
