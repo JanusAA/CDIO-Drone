@@ -40,7 +40,7 @@ public class DroneCommander implements CircleListener{
 	
 	private int speed = 30;  // The base velocity in %
 	private int slowspeed = 10;  //  The velocity used for centralizing in %
-	private int slowtime = 100;	//	The time centralizing commands are done in ms
+	private int slowtime = 200;	//	The time centralizing commands are done in ms
 	private double ErrorMargin = 35;	// the Margin of Error in which the center of a circle can be fount
 	
 	private int count = 0;	//	The counter for amount of centered circles 
@@ -302,33 +302,33 @@ public class DroneCommander implements CircleListener{
 	}
 	
 	
-//	public void moveToAltitude(int height){
-//		DroneAlttitudeListener nav = new DroneAlttitudeListener();
-//		nav.addAltListener(drone);
-//		while(height + ErrorMargin > nav.getAltitude() || height - ErrorMargin < nav.getAltitude())
-//		{
-//			if (height - ErrorMargin > nav.getAltitude()) {
-//				cmd.up(slowspeed).doFor(slowtime);
-//			} 
-//			else if (height + ErrorMargin < nav.getAltitude()){
-//				cmd.down(slowspeed).doFor(slowtime);
-//			} 
-//			else 
-//				altcount++;
-//				if(altcount >= countmax){
-//					return;
-//				}
-//			{
-//			}
-//			nav.removeAltListener(drone);
-//			try {
-//				Thread.currentThread().sleep(500);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		
-//	}
+	public void moveToAltitude(int height){
+		DroneAlttitudeListener nav = new DroneAlttitudeListener();
+		nav.addAltListener(drone);
+		while(height + ErrorMargin > nav.getAltitude() || height - ErrorMargin < nav.getAltitude())
+		{
+			if (height - ErrorMargin > nav.getAltitude()) {
+				cmd.up(slowspeed).doFor(slowtime);
+			} 
+			else if (height + ErrorMargin < nav.getAltitude()){
+				cmd.down(slowspeed).doFor(slowtime);
+			} 
+			else 
+				altcount++;
+				if(altcount >= countmax){
+					return;
+				}
+			{
+			}
+			nav.removeAltListener(drone);
+			try {
+				Thread.currentThread().sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
 	
 	/**
 	 * Circle in center
@@ -360,55 +360,60 @@ public class DroneCommander implements CircleListener{
 	 */
 	public void findCircleCenter(Circle circle) {
 		
-			double circle_x = circle.x;
-			double circle_y = circle.y;
+			double circle_x = Math.abs(circle.x);
+			double circle_y = Math.abs(circle.y);
 			double circle_r = circle.r;
 			
 			double abs_dif_x = Math.abs(circle_x - midPoint_x);
 			double abs_dif_y = Math.abs(circle_y - midPoint_y);
 			double abs_dif_r = Math.abs(circle_r - max_radius);
 			
-			if(abs_dif_x > abs_dif_y && abs_dif_x > abs_dif_r){
-//				if(circle_x <= midPoint_x + (ErrorMargin/2) || circle_x >= midPoint_x - (ErrorMargin/2)){
+			if(abs_dif_x > abs_dif_y){
+				if(circle_x <= midPoint_x + (ErrorMargin/2) || circle_x >= midPoint_x - (ErrorMargin/2)){
 					if(circle_x < midPoint_x){
 						flyRight(slowspeed);
 						System.out.println("h�jre");
 						hover();
+						timeOut();
 					}
 					else if(circle_x > midPoint_x){
 						flyLeft(slowspeed);
 						System.out.println("venstre");
 						hover();
+						timeOut();
 					}}
-//			}
-			if(abs_dif_y > abs_dif_x && abs_dif_y > abs_dif_r){
-//				if(circle_y <= midPoint_y + (ErrorMargin/2) || circle_y >= midPoint_y - (ErrorMargin/2)){
+			}
+			if(abs_dif_y > abs_dif_x){
+				if(circle_y <= midPoint_y + (ErrorMargin/2) || circle_y >= midPoint_y - (ErrorMargin/2)){
 					if(circle_y > midPoint_y){
 						decreaseAltitude(slowspeed);
 						System.out.println("ned");
 						hover();
+						timeOut();
 					}
 					else if(circle_y < midPoint_y){
 						increaseAltitude(slowspeed);
 						System.out.println("up");
 						hover();
+						timeOut();
 					}}
-//			}
-			if(abs_dif_r > abs_dif_x && abs_dif_r > abs_dif_y){
+			}
+//			if(abs_dif_r > abs_dif_x && abs_dif_r > abs_dif_y){
 //				if(circle_r <= max_radius + (ErrorMargin/2) || circle_r >= max_radius - (ErrorMargin/2)){
-					if(circle_r > max_radius){
-						flyBackward(slowspeed);
-						System.out.println("bagud");
-						hover();
-					}
-					else if(circle_r < max_radius){
-						flyForward(slowspeed);
-						System.out.println("frem");
-						hover();
-					}}
+//					if(circle_r > max_radius){
+//						flyBackward(slowspeed);
+//						System.out.println("bagud");
+//						hover();
+//					}
+//					else if(circle_r < max_radius){
+//						flyForward(slowspeed);
+//						System.out.println("frem");
+//						hover();
+//					}}
 //			}
 		
 			if(CircleInCenter(circles[0])){
+				System.out.println("FUCK YEAH 1 gang!");
 				count++;
 			}
 			else{
@@ -416,6 +421,7 @@ public class DroneCommander implements CircleListener{
 			}
 		
 			if(count >= countmax){
+				System.out.println("FUCK YEAH");
 				findCircle = false;
 			}
 		}
@@ -451,11 +457,11 @@ public class DroneCommander implements CircleListener{
 	}
 	
 	public void timeOut(){
-//		int dateToBeat = (int) new Date().getTime() + 500;
-//		int date = (int) new Date().getTime();
-//		while(dateToBeat > date){
-//			date = (int) new Date().getTime();
-//		}
+		int dateToBeat = (int) new Date().getTime() + 500;
+		int date = (int) new Date().getTime();
+		while(dateToBeat > date){
+			date = (int) new Date().getTime();
+		}
 	}
 	/**
 	 * CirclesUpdated method comes from the implementation of circlelistener
@@ -470,20 +476,20 @@ public class DroneCommander implements CircleListener{
 //		this.circles = circles;
 //	}
 	
-//	public void searchForQR() throws InterruptedException{
-//		//Search for QR method:
-//		moveToAltitude(1000);
-//		Result tag = control.getTag();
-//		if (tag != null){
-//			State.setState(Command.ValidateQR);
-//		}
-//		moveToAltitude(1000);
-//		TurnRight(30, 40);
-//		
-//		Thread.currentThread().sleep(20);
-//		//TODO: Might need to sleep the controller, and wait for the drone to spin. 
-//
-//	}
+	public void searchForQR() throws InterruptedException{
+		//Search for QR method:
+		moveToAltitude(1000);
+		Result tag = control.getTag();
+		if (tag != null){
+			State.setState(Command.ValidateQR);
+		}
+		moveToAltitude(1000);
+		TurnRight(30, 40);
+		
+		Thread.currentThread().sleep(20);
+		//TODO: Might need to sleep the controller, and wait for the drone to spin. 
+
+	}
 	
 	public void centralizeQR() throws InterruptedException {
 		//Relying on code from API paperchase:
@@ -571,49 +577,51 @@ public class DroneCommander implements CircleListener{
 		}
 	}
 	
-//	public void lostQR() throws InterruptedException{
-//		System.out.println("State: Lost QR.. ");
-//		moveToAltitude(1000);
-//		Result tag = control.getTag();
-//		if (tag != null){
-//			State.setState(Command.ValidateQR);
-//
-//		} else {
-//			int moves = 0;
-//			int tries = 0;
-//
-//			while (tries < 6){
-//				switch (moves){
-//
-//				case 0: 
-//					flyBackward(10, 150);
-//					moves = 1;
-//					tries++;
-//					break;
-//
-//				case 1:
-//					flyRight(10, 100);
-//					moves = 2;
-//					tries++;
-//					break;
-//
-//				case 2:
-//					flyLeft(10, 200);
-//					moves = 0;
-//					tries++;
-//					break;
-//				}
-//				Thread.currentThread().sleep(100);
-//			}
-//			State.setState(Command.SearchForQR);
-//		}
-//	}
+	public void lostQR() throws InterruptedException{
+		System.out.println("State: Lost QR.. ");
+		moveToAltitude(1000);
+		Result tag = control.getTag();
+		if (tag != null){
+			State.setState(Command.ValidateQR);
+
+		} else {
+			int moves = 0;
+			int tries = 0;
+
+			while (tries < 6){
+				switch (moves){
+
+				case 0: 
+					flyBackward(10, 150);
+					moves = 1;
+					tries++;
+					break;
+
+				case 1:
+					flyRight(10, 100);
+					moves = 2;
+					tries++;
+					break;
+
+				case 2:
+					flyLeft(10, 200);
+					moves = 0;
+					tries++;
+					break;
+				}
+				Thread.currentThread().sleep(100);
+			}
+			State.setState(Command.SearchForQR);
+		}
+	}
 
 	@Override
 	public void circlesUpdated(Circle[] circle) {
 		this.circles = circle;
+		if(circle[0].r > 30){
 		if(true){
 		findCircleCenter(circle[0]);
+		}
 		}
 	}
 }

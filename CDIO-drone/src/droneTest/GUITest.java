@@ -12,7 +12,9 @@ import controllers.MainController;
 import controllers.DroneStateController;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
+import de.yadrone.base.command.VideoBitRateMode;
 import de.yadrone.base.command.VideoChannel;
+import de.yadrone.base.command.VideoCodec;
 import imageDetection.CircleScanner;
 
 public class GUITest {
@@ -35,6 +37,7 @@ public class GUITest {
 		drone = new ARDrone();
 		drone.start();
 		drone.getCommandManager().setVideoChannel(VideoChannel.HORI);
+		drone.getCommandManager().setVideoCodecFps(15);
 		
 		droneGUI gui = new droneGUI(drone);
 		
@@ -46,6 +49,7 @@ public class GUITest {
 		circles.addListener(cmd);
 		
 		
+		
 		drone.getVideoManager().addImageListener(scanner);
 		drone.getVideoManager().addImageListener(gui);
 		drone.getVideoManager().addImageListener(circles);
@@ -55,7 +59,7 @@ public class GUITest {
 		drone.getCommandManager().flatTrim();
 		cmd.takeOff();
 		cmd.hover();
-		cmd.increaseAltitude(30, 2300);
+		cmd.increaseAltitude(1500);
 		cmd.hover();
 		scan.nextLine();
 	
