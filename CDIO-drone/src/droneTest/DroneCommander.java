@@ -363,72 +363,64 @@ public class DroneCommander implements CircleListener{
 			double circle_x = circle.x;
 			double circle_y = circle.y;
 			double circle_r = circle.r;
-		if(circles.length > 0){
-		if(methodecount == 0){
-			if(circle_x <= midPoint_x + (ErrorMargin/2) || circle_x >= midPoint_x - (ErrorMargin/2)){
-			if(circle_x < midPoint_x){
-				flyRight(slowspeed);
-				System.out.println("h�jre");
-				hover();
-			}
-			else if(circle_x > midPoint_x){
-				flyLeft(slowspeed);
-				System.out.println("venstre");
-				hover();
-			}}
-			methodecount = 1;
-			timeOut();
-			return;
 			
-		}
-		else if(methodecount ==1){
-			if(circle_y <= midPoint_y + (ErrorMargin/2) || circle_y >= midPoint_y - (ErrorMargin/2)){
-			if(circle_y > midPoint_y){
-				decreaseAltitude(slowspeed);
-				System.out.println("ned");
-				hover();
-			}
-			else if(circle_y < midPoint_y){
-				increaseAltitude(slowspeed);
-				System.out.println("up");
-				hover();
-			}}
-			methodecount = 2;
-			timeOut();
-			return;
-		}
-		else if(methodecount == 2){
-			if(circle_r <= max_radius + (ErrorMargin/2) || circle_r >= max_radius - (ErrorMargin/2))
-			if(circle_r > max_radius){
-				flyBackward(slowspeed);
-				System.out.println("bagud");
-				hover();
-			}
-			else if(circle_r < max_radius){
-				flyForward(slowspeed);
-				System.out.println("frem");
-				hover();
-			}
-			methodecount = 3;
-			timeOut();
-			return;
-		}		
-		else if(methodecount == 3){
-		methodecount = 0;
+			double abs_dif_x = Math.abs(circle_x - midPoint_x);
+			double abs_dif_y = Math.abs(circle_y - midPoint_y);
+			double abs_dif_r = Math.abs(circle_r - max_radius);
+			
+			if(abs_dif_x > abs_dif_y && abs_dif_x > abs_dif_r){
+//				if(circle_x <= midPoint_x + (ErrorMargin/2) || circle_x >= midPoint_x - (ErrorMargin/2)){
+					if(circle_x < midPoint_x){
+						flyRight(slowspeed);
+						System.out.println("h�jre");
+						hover();
+					}
+					else if(circle_x > midPoint_x){
+						flyLeft(slowspeed);
+						System.out.println("venstre");
+						hover();
+					}}
+//			}
+			if(abs_dif_y > abs_dif_x && abs_dif_y > abs_dif_r){
+//				if(circle_y <= midPoint_y + (ErrorMargin/2) || circle_y >= midPoint_y - (ErrorMargin/2)){
+					if(circle_y > midPoint_y){
+						decreaseAltitude(slowspeed);
+						System.out.println("ned");
+						hover();
+					}
+					else if(circle_y < midPoint_y){
+						increaseAltitude(slowspeed);
+						System.out.println("up");
+						hover();
+					}}
+//			}
+			if(abs_dif_r > abs_dif_x && abs_dif_r > abs_dif_y){
+//				if(circle_r <= max_radius + (ErrorMargin/2) || circle_r >= max_radius - (ErrorMargin/2)){
+					if(circle_r > max_radius){
+						flyBackward(slowspeed);
+						System.out.println("bagud");
+						hover();
+					}
+					else if(circle_r < max_radius){
+						flyForward(slowspeed);
+						System.out.println("frem");
+						hover();
+					}}
+//			}
 		
-		if(CircleInCenter(circles[0])){
-			count++;
-		}
-		else{
-			count = 0;
+			if(CircleInCenter(circles[0])){
+				count++;
+			}
+			else{
+				count = 0;
+			}
+		
+			if(count >= countmax){
+				findCircle = false;
+			}
 		}
 		
-		if(count >= countmax){
-			findCircle = false;
-		}
-		}
-		}
-		}
+		
 	
 	/**
 	 * Fly Through circle method
