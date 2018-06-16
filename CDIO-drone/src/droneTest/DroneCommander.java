@@ -25,6 +25,7 @@ import de.yadrone.base.command.CommandManager;
 import imageDetection.Circle;
 import imageDetection.CircleListener;
 import imageDetection.CircleScanner;
+import imageDetection.CircleScannerCMD;
 import droneTest.GUITest;
 
 public class DroneCommander implements CircleListener{
@@ -361,12 +362,20 @@ public class DroneCommander implements CircleListener{
 	public void findCircleCenter() {
 		
 		while(count < countmax){
-			CircleScanner.updateCurrentCircle();
-			Circle circle = CircleScanner.getLastCircle();
+			System.out.println("inde");
+			Circle[] circle = null;
+			CircleScannerCMD.updateCurrentCircle();
+//			while(CircleScannerCMD.getCircleSaved() == false){
+//				System.out.println("kommer ikke ud :(");
+//			}
+			timeOut();
+			circle = CircleScannerCMD.getCircle();
+			if(circle != null){
+			System.out.println("x: " + circle[0].x + " y: " + circle[0].y);
 		
-			double circle_x = Math.abs(circle.x);
-			double circle_y = Math.abs(circle.y);
-			double circle_r = Math.abs(circle.r);
+			double circle_x = Math.abs(circle[0].x);
+			double circle_y = Math.abs(circle[0].y);
+			double circle_r = Math.abs(circle[0].r);
 			
 			double abs_dif_x = Math.abs(circle_x - midPoint_x);
 			double abs_dif_y = Math.abs(circle_y - midPoint_y);
@@ -378,13 +387,11 @@ public class DroneCommander implements CircleListener{
 						flyRight(slowspeed);
 						System.out.println("h�jre");
 						hover();
-						timeOut();
 					}
 					else if(circle_x > midPoint_x){
 						flyLeft(slowspeed);
 						System.out.println("venstre");
 						hover();
-						timeOut();
 					}}
 			}
 			if(abs_dif_y > abs_dif_x){
@@ -393,13 +400,11 @@ public class DroneCommander implements CircleListener{
 						decreaseAltitude(slowspeed);
 						System.out.println("ned");
 						hover();
-						timeOut();
 					}
 					else if(circle_y < midPoint_y){
 						increaseAltitude(slowspeed);
 						System.out.println("up");
 						hover();
-						timeOut();
 					}}
 			}
 //			if(abs_dif_r > abs_dif_x && abs_dif_r > abs_dif_y){
@@ -429,7 +434,10 @@ public class DroneCommander implements CircleListener{
 //				findCircle = false;
 				return;
 			}}
+			CircleScannerCMD.setNullLastCircle();
 		}
+		}
+		
 		
 		
 	
@@ -462,7 +470,7 @@ public class DroneCommander implements CircleListener{
 	}
 	
 	public void timeOut(){
-		int dateToBeat = (int) new Date().getTime() + 500;
+		int dateToBeat = (int) new Date().getTime() + 250;
 		int date = (int) new Date().getTime();
 		while(dateToBeat > date){
 			date = (int) new Date().getTime();

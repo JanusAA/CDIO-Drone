@@ -59,8 +59,10 @@ public class GUITest {
 		drone.getCommandManager().flatTrim();
 		cmd.takeOff();
 		cmd.hover();
-		cmd.increaseAltitude(1500);
+//		cmd.moveToAltitude(1500);
+		cmd.increaseAltitude(20, 1500);
 		cmd.hover();
+		cmd.findCircleCenter();
 		scan.nextLine();
 	
 		
