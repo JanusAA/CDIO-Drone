@@ -51,18 +51,13 @@ public class GUITest {
 		drone.getVideoManager().addImageListener(circles);
 		
 		scan.nextLine();
-
+		
+		drone.getCommandManager().flatTrim();
 		cmd.takeOff();
 		cmd.hover();
+		cmd.increaseAltitude(30, 2300);
+		cmd.hover();
 		scan.nextLine();
-		while(true){
-		try {
-		cmd.centralizeQR();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		}
 	
 		
 	}

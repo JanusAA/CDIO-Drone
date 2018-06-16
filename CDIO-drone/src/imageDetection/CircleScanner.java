@@ -40,15 +40,16 @@ public class CircleScanner implements ImageListener {
     
     Circle[] cir = new Circle[circles.cols()];
     double[] circlePoints;
-    
+
     for(int i = 0; i < circles.cols(); i++){
     	circlePoints = circles.get(0, i);
     	//System.out.println("x: " + circlePoints[0] + " y: " + circlePoints[1] + " r: " + circlePoints[2]);
     	cir[i] = new Circle(circlePoints[0], circlePoints[1], circlePoints[2]);
     }
-    		
+    
 	return cir;
 	}
+	
 	
 	//Convert bufferedImage to Mat
 	// https://stackoverflow.com/questions/14958643/converting-bufferedimage-to-mat-in-opencv?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa

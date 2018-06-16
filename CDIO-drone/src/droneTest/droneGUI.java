@@ -45,8 +45,8 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, Q
 	
 	private JPanel videoPanel;
 	
-	private boolean qr = false;
-	private boolean circle = false;
+	private boolean qr = true;
+	private boolean circle = true;
 	
 	public droneGUI(final IARDrone drone)
 	{
@@ -102,7 +102,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, Q
     				
         			
     				// draw triangle if tag is visible
-        			//if(qr){
+        			if(qr){
         			if (result != null)
         			{
         				ResultPoint[] points = result.getResultPoints();
@@ -140,7 +140,7 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, Q
 							g.drawString(c.toString(), (int) c.x * imgScale + 10, (int) c.y * imgScale + 10);
 						}
         			}}
-        	}
+        	}}
         };         
         videoPanel.setSize(GUITest.IMAGE_WIDTH, GUITest.IMAGE_HEIGHT);
         videoPanel.setMinimumSize(new Dimension(GUITest.IMAGE_WIDTH, GUITest.IMAGE_HEIGHT));
