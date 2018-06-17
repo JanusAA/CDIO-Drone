@@ -140,7 +140,15 @@ public class droneGUI extends JFrame implements ImageListener, CircleListener, Q
 							g.drawString(c.toString(), (int) c.x * imgScale + 10, (int) c.y * imgScale + 10);
 						}
         			}}
-        	}}
+        	}
+        		else
+        		{
+        			// draw "Waiting for video"
+        			g.setColor(Color.RED);
+    				g.setFont(tagFont);
+        			g.drawString("Waiting for Video ...", 10, 20);
+        		}
+        		}
         };         
         videoPanel.setSize(GUITest.IMAGE_WIDTH, GUITest.IMAGE_HEIGHT);
         videoPanel.setMinimumSize(new Dimension(GUITest.IMAGE_WIDTH, GUITest.IMAGE_HEIGHT));

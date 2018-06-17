@@ -4,20 +4,14 @@ import java.util.Scanner;
 
 import org.opencv.core.Core;
 
-import com.google.zxing.Result;
-import com.google.zxing.ResultPoint;
-
 import QR.QRCode;
-import controllers.MainController;
 import controllers.DroneStateController;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
-import de.yadrone.base.command.VideoBitRateMode;
 import de.yadrone.base.command.VideoChannel;
-import de.yadrone.base.command.VideoCodec;
 import imageDetection.CircleScanner;
 
-public class GUITest {
+public class MainTestController {
 	
 	public final static int IMAGE_WIDTH = 640; // 640 or 1280
 	public final static int IMAGE_HEIGHT = 360; // 360 or 720
@@ -33,7 +27,7 @@ public class GUITest {
 	private DroneStateController dsc = null;
 	private Scanner scan = new Scanner(System.in);
 	
-	public GUITest() {
+	public MainTestController() {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		drone = new ARDrone();
 		drone.start();
@@ -45,11 +39,9 @@ public class GUITest {
 		cmd = new DroneCommander((ARDrone) drone, SPEED, dsc);
 		
 		circles = new CircleScanner();
-		scanner = new QRCode();
 		circles.addListener(gui);
-		scanner.addListener(gui);
+		scanner = new QRCode();
 		circles.addListener(cmd);
-		scanner.addListener(cmd);
 		
 		
 		
@@ -60,7 +52,13 @@ public class GUITest {
 		scan.nextLine();
 		
 		drone.getCommandManager().flatTrim();
-		cmd.run();
+		cmd.takeOff();
+		cmd.hover();
+//		cmd.moveToAltitude(1500);
+		cmd.increaseAltitude(20, 1500);
+		cmd.hover();
+		cmd.findCircleCenter();
+		scan.nextLine();
 	
 		
 	}
@@ -68,4 +66,5 @@ public class GUITest {
 	{
 		new GUITest();
 	}
+
 }

@@ -1,5 +1,5 @@
 /**
- * Author: Simon Christiansen
+ * Author: Aleksander
  */
 
 
@@ -9,53 +9,55 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Random;
 
-import org.opencv.core.Mat;
-import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
 
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 
+import QR.QRListener;
 import controllers.DroneStateController;
-import controllers.DroneStateController.Command;
 import controllers.MainController;
+import de.yadrone.apps.paperchase.PaperChase;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.command.CommandManager;
+import de.yadrone.base.command.LEDAnimation;
 import imageDetection.Circle;
 import imageDetection.CircleListener;
-import imageDetection.CircleScanner;
-import imageDetection.CircleScannerCMD;
 import droneTest.GUITest;
 
-public class DroneCommander implements CircleListener{
+public class DroneCommander extends AbstractTestController implements CircleListener, QRListener{
 
 
 	private ArrayList<CircleListener> listeners = new ArrayList<CircleListener>();
+	private ArrayList<String> tagVisitedList = new ArrayList<String>();
 	
 	private ARDrone drone = null;
 	private CommandManager cmd = null;
 	private droneGUI dronegui = null;
 	private DroneStateController State = null;
 	private MainController control = null;
+	private int TOLERANCE = 20;
 	
 	private int speed = 30;  // The base velocity in %
-	private int slowspeed = 10;  //  The velocity used for centralizing in %
+	private int slowspeed = 3;  //  The velocity used for centralizing in %
 	private int slowtime = 200;	//	The time centralizing commands are done in ms
-	private double ErrorMargin = 35;	// the Margin of Error in which the center of a circle can be fount
+	private double ErrorMargin = 10;	// the Margin of Error in which the center of a circle can be fount
 	
 	private int count = 0;	//	The counter for amount of centered circles 
+	private int counterCircle = 0;
 	private int altcount = 0;
 	private int methodecount = 0;  // Count Used to limit the calls done in findCircleCenter
-	private int countmax = 6;	//	The amount of centered circles we need before flying through a circle
-	private boolean findCircle = true;	//	When true we look for circles
+	private int countmax = 5;	//	The amount of centered circles we need before flying through a circle
+	private boolean findCircle = false;	//	When true we look for circles
 	
 	private double midPoint_x = GUITest.IMAGE_WIDTH/2;	// Camera midpoint in x
 	private double midPoint_y = GUITest.IMAGE_HEIGHT/2;	// camera midpoint in y
-
-	private double max_radius = 140;	// The size of the circle we want on the camera
+	private Result tag;
+	private float tagOrientation;
+	private double max_radius = 90;	// The size of the circle we want on the camera
 	
-	private Circle[] circles = CircleScanner.cir;
+	private Circle[] circles;
 	
 		/**
 		 * The DroneCommander Constructor
@@ -338,14 +340,20 @@ public class DroneCommander implements CircleListener{
 	 * @param circle
 	 * @return
 	 */
-	public boolean CircleInCenter(Circle circle){
+	public boolean CircleInCenter(){
+		Circle[] circle = circles;	
+		
+		double circle_x = Math.abs(circle[0].x);
+		double circle_y = Math.abs(circle[0].y);
+		double circle_r = Math.abs(circle[0].r);
+		
 		boolean inCenter = false;
 				
-		if(circle.x <= midPoint_x + ErrorMargin && circle.x >= midPoint_x - ErrorMargin){
-			if(circle.y <= midPoint_y + ErrorMargin && circle.y >= midPoint_y - ErrorMargin){
-				if(circle.r <= max_radius + (ErrorMargin/2) && circle.r >= max_radius - (ErrorMargin/2)){
-					inCenter = true;
-				}
+		if(circle_x <= midPoint_x + (ErrorMargin/2) && circle_x >= midPoint_x - (ErrorMargin/2)){
+			if(circle_y <= midPoint_y + (ErrorMargin/2) && circle_y >= midPoint_y - (ErrorMargin/2)){
+				drone.getCommandManager().setLedsAnimation(LEDAnimation.BLINK_ORANGE, 10, 5);
+					Landing();
+				
 			}
 		}
 		return inCenter;
@@ -359,86 +367,93 @@ public class DroneCommander implements CircleListener{
 	 * also to limit amount of commands called
 	 * @param circle
 	 */
-	public void findCircleCenter() {
+	public void findCircleCenter() throws InterruptedException{
 		
-		while(count < countmax){
-			System.out.println("inde");
-			Circle[] circle = null;
-			CircleScannerCMD.updateCurrentCircle();
-//			while(CircleScannerCMD.getCircleSaved() == false){
-//				System.out.println("kommer ikke ud :(");
-//			}
-			timeOut();
-			circle = CircleScannerCMD.getCircle();
-			if(circle != null){
-			System.out.println("x: " + circle[0].x + " y: " + circle[0].y);
+		
+		Circle[] circle;
+		synchronized(circles)
+		{
+			circle = circles;	
+		}
 		
 			double circle_x = Math.abs(circle[0].x);
 			double circle_y = Math.abs(circle[0].y);
 			double circle_r = Math.abs(circle[0].r);
-			
+			System.out.println(circle_r);
 			double abs_dif_x = Math.abs(circle_x - midPoint_x);
 			double abs_dif_y = Math.abs(circle_y - midPoint_y);
 			double abs_dif_r = Math.abs(circle_r - max_radius);
 			
+			
 			if(abs_dif_x > abs_dif_y){
-				if(circle_x <= midPoint_x + (ErrorMargin/2) || circle_x >= midPoint_x - (ErrorMargin/2)){
-					if(circle_x < midPoint_x){
-						flyRight(slowspeed);
-						System.out.println("h�jre");
-						hover();
-					}
-					else if(circle_x > midPoint_x){
-						flyLeft(slowspeed);
-						System.out.println("venstre");
-						hover();
-					}}
+				System.out.println("x");
+			if (circle_x < (midPoint_x + (ErrorMargin/2)))
+				{
+				System.out.println("Go left");
+				drone.getCommandManager().goLeft(slowspeed);
+				Thread.currentThread().sleep(200);
+				hover();
+				}
+			else if (circle_x > (midPoint_x + (ErrorMargin/2)))
+				{
+				System.out.println("PaperChaseAutoController: Go right");
+				drone.getCommandManager().goRight(slowspeed);
+				Thread.currentThread().sleep(200);
+				hover();
+				}
 			}
-			if(abs_dif_y > abs_dif_x){
-				if(circle_y <= midPoint_y + (ErrorMargin/2) || circle_y >= midPoint_y - (ErrorMargin/2)){
-					if(circle_y > midPoint_y){
-						decreaseAltitude(slowspeed);
-						System.out.println("ned");
-						hover();
-					}
-					else if(circle_y < midPoint_y){
-						increaseAltitude(slowspeed);
-						System.out.println("up");
-						hover();
-					}}
+			else if(abs_dif_y > abs_dif_x){
+			if (circle_y < (midPoint_y + (ErrorMargin/4)))
+			{
+				System.out.println("PaperChaseAutoController: Go left");
+				drone.getCommandManager().up(slowspeed);
+				Thread.currentThread().sleep(200);
+				hover();
 			}
-//			if(abs_dif_r > abs_dif_x && abs_dif_r > abs_dif_y){
-//				if(circle_r <= max_radius + (ErrorMargin/2) || circle_r >= max_radius - (ErrorMargin/2)){
-//					if(circle_r > max_radius){
-//						flyBackward(slowspeed);
-//						System.out.println("bagud");
-//						hover();
-//					}
-//					else if(circle_r < max_radius){
-//						flyForward(slowspeed);
-//						System.out.println("frem");
-//						hover();
-//					}}
+			else if (circle_y > (midPoint_y + (ErrorMargin/4)))
+			{
+				System.out.println("PaperChaseAutoController: Go left");
+				drone.getCommandManager().down(slowspeed);
+				Thread.currentThread().sleep(200);
+				hover();
+			}
+			}
+//			else if (circle_r < max_radius){
+//				System.out.println("PaperChaseAutoController: Go forward");
+//				drone.getCommandManager().forward(slowspeed);
+//				Thread.currentThread().sleep(200);
+//				hover();
+//				Thread.currentThread().sleep(500);
 //			}
-		
-			if(CircleInCenter(circles[0])){
-				count++;
-				System.out.println("FUCK YEAH " + count + " gang!");
+//			else if (circle_r > max_radius){
+//				System.out.println("PaperChaseAutoController: Go backwards");
+//				drone.getCommandManager().backward(slowspeed);
+//				Thread.currentThread().sleep(200);
+//				hover();
+//				Thread.currentThread().sleep(500);
+//			}
+			
+			if(circle_x <= midPoint_x + (ErrorMargin/2) && circle_x >= midPoint_x - (ErrorMargin/2)){
+				if(circle_y <= midPoint_y + (ErrorMargin) && circle_y >= midPoint_y - (ErrorMargin)){
+					drone.getCommandManager().setLedsAnimation(LEDAnimation.BLINK_ORANGE, 10, 5);
+						counterCircle++;
+						System.out.println(counterCircle);
+						System.out.println(counterCircle);
+						System.out.println(counterCircle);
+						System.out.println(counterCircle);
+						System.out.println(counterCircle);
+						System.out.println(counterCircle);
+						System.out.println(counterCircle);
+						System.out.println(counterCircle);
+
+						if(counterCircle >= countmax){
+							Landing();
+						}
+				}
 			}
-			else{
-				count = 0;
 			}
-		
-			if(count >= countmax){
-				System.out.println("FUCK YEAH");
-//				findCircle = false;
-				return;
-			}}
-			CircleScannerCMD.setNullLastCircle();
-		}
-		}
-		
-		
+	
+
 		
 	
 	/**
@@ -447,27 +462,27 @@ public class DroneCommander implements CircleListener{
 	 * then proceeds to fly straight through the circle.
 	 * @param circle
 	 */
-	public void flythroughCircle(Circle[] circle){		
-	if (circle != null){
-//				findCircleCenter();
-					if(CircleInCenter(circle[0])){
-						count++;
-					}
-					else{
-						count = 0;
-					}
-				if(count >= countmax){
-					setFindCircle(false);
-					flyForward(35,2500);
-					hover();
-					Landing();
-					System.out.println("Found Circle Center");
-					return;
-				}
-				else{
-				}		
-		}
-	}
+//	public void flythroughCircle(Circle[] circle){		
+//	if (circle != null){
+////				findCircleCenter();
+//					if(CircleInCenter(circle[0])){
+//						count++;
+//					}
+//					else{
+//						count = 0;
+//					}
+//				if(count >= countmax){
+//					setFindCircle(false);
+//					flyForward(35,2500);
+//					hover();
+//					Landing();
+//					System.out.println("Found Circle Center");
+//					return;
+//				}
+//				else{
+//				}		
+//		}
+//	}
 	
 	public void timeOut(){
 		int dateToBeat = (int) new Date().getTime() + 250;
@@ -489,152 +504,220 @@ public class DroneCommander implements CircleListener{
 //		this.circles = circles;
 //	}
 	
-	public void searchForQR() throws InterruptedException{
-		//Search for QR method:
-		moveToAltitude(1000);
-		Result tag = control.getTag();
-		if (tag != null){
-			State.setState(Command.ValidateQR);
-		}
-		moveToAltitude(1000);
-		TurnRight(30, 40);
-		
-		Thread.currentThread().sleep(20);
-		//TODO: Might need to sleep the controller, and wait for the drone to spin. 
-
-	}
-	
-	public void centralizeQR() throws InterruptedException {
-		//Relying on code from API paperchase:
-		Result tag = control.getTag();
-		String tagText;
-		ResultPoint[] points;
-		
-		synchronized(tag){
-			points = tag.getResultPoints();
-			tagText = tag.getText();
-		}
-
-		
-		float x = points[1].getX();
-		float y = points[1].getY();
-		
-		if ((control.getTagOrientation() > 10) && (control.getTagOrientation() < 180)){
-			System.out.println("Spin left");
-			TurnLeft(10, 500);
-		}
-		else if ((control.getTagOrientation() < 350) &&(control.getTagOrientation() > 180)){
-			System.out.println("Spin right");
-			TurnRight(10, 500);
-		}
-		else if (x < (midPoint_x - control.TOLERANCE)){
-			System.out.println("Go left");
-			flyLeft(5, 500);
-		}
-		else if (x > (midPoint_x + control.TOLERANCE)){
-			System.out.println("Go Right");
-			flyRight(5, 500);
-		}
-		else if (y < (midPoint_y - control.TOLERANCE)){
-			System.out.println("Go forward");
-			flyForward(5, 500);
-		}
-		else if (y > (midPoint_y + control.TOLERANCE)){
-			System.out.println("Go forward");
-			flyBackward(5, 500);
-		}
-		else{
-			System.out.println("QR tag centered");
-			
-			State.setState(Command.FlyThrough);
-			Thread.currentThread().sleep(600);
-		}
-	}
-	
-	public void validateQR() throws InterruptedException{
-		System.out.println("State: Validate QR: Validating QR.. ");
-		Result tag = control.getTag();
-		if (tag == null){
-			System.out.println("Tag lost");
-			State.setState(Command.LostQR);
-		}
-		if (tag != null){
-			if(control.getGates().get(control.getGate()).equals(tag.getText())){
-				System.out.println("Valid port with number: " + tag.getText());
-				State.setState(Command.CentralizeQR);
-			}
-			// Checks if the gate is a QR which starts with p/P:
-			else if ("p" != (tag.getText().substring(0, 1).toLowerCase())){
-				System.out.println("WallMarks");
-				//TODO: implement action the drone shall take if a wallmark is read. 
-			
-		}else {
-				System.out.println("Invalid port number: " +tag.getText());
-				State.setState(Command.SearchForQR);
-			}
-		}
-		Thread.currentThread().sleep(20);
-	}
-	
-	public void updateGate(){
-		System.out.println("Updating next gate..");
-		//Updating the gate number which is searched for: 
-		control.setGate();;
-		
-		System.out.println("Next gate is: p.0" + control.getGate());
-		
-		if(control.getGate() == control.getMaxGate()){
-			System.out.println("Course complete.. searching for landing spot");
-			drone.hover();
-			State.setState(Command.Land);
-		}
-	}
-	
-	public void lostQR() throws InterruptedException{
-		System.out.println("State: Lost QR.. ");
-		moveToAltitude(1000);
-		Result tag = control.getTag();
-		if (tag != null){
-			State.setState(Command.ValidateQR);
-
-		} else {
-			int moves = 0;
-			int tries = 0;
-
-			while (tries < 6){
-				switch (moves){
-
-				case 0: 
-					flyBackward(10, 150);
-					moves = 1;
-					tries++;
-					break;
-
-				case 1:
-					flyRight(10, 100);
-					moves = 2;
-					tries++;
-					break;
-
-				case 2:
-					flyLeft(10, 200);
-					moves = 0;
-					tries++;
-					break;
-				}
-				Thread.currentThread().sleep(100);
-			}
-			State.setState(Command.SearchForQR);
-		}
-	}
 
 	@Override
 	public void circlesUpdated(Circle[] circle) {
-//		this.circles = circle;
+		if (circle == null) // ToDo: do not call if no tag is present
+			return;
+		this.circles = circle;
+		//		this.circles = circle;
 //		if(circle[0].r > 30){
 //		if(true){
 //		findCircleCenter(circle[0]);
 //		}
 //		}
 	}
-}
+	
+	public void runTheQRFinder()
+	{
+		while(true) // control loop
+		{
+			try
+			{
+				if ((tag != null) && (System.currentTimeMillis() - tag.getTimestamp() > 500)){ // reset if too old (and not updated)
+					tag = null;
+					System.out.println("tag to old");
+				}
+				if(tag == null){
+					strayAround();
+				}
+				
+				if (!isTagCentered() && tag != null) // tag visible, but not centered
+				{
+					System.out.println("no tag in center");
+					centerTag();
+				}
+				else if (isTagCentered() && tag != null){
+					if (isTagCentered()){
+						count++;
+						}
+						else{
+						count = 0;
+						}
+						if(count > countmax){
+						System.out.println("Er i midten");
+						}
+				}
+				else
+				{
+					System.out.println("PaperChaseAutoController: I do not know what to do ...");
+				}
+			}
+			catch(Exception exc)
+			{
+				exc.printStackTrace();
+			}
+		}
+	}
+
+	public void onTag(Result result, float orientation)
+	{
+		if (result == null) // ToDo: do not call if no tag is present
+			return;
+		
+		System.out.println("PaperChaseAutoController: Tag found");
+
+		tag = result;
+		tagOrientation = orientation;
+	}
+	
+	
+	private boolean isTagCentered()
+	{
+		if (tag == null)
+			return false;
+		
+		// a tag is centered if it is
+		// 1. if "Point 1" (on the tag the upper left point) is near the center of the camera  
+		// 2. orientation is between 350 and 10 degrees
+		
+		int imgCenterX = (int) midPoint_x;
+		int imgCenterY = (int) midPoint_y;
+		
+		ResultPoint[] points = tag.getResultPoints();
+		boolean isCentered = ((points[1].getX() > (imgCenterX - TOLERANCE)) &&
+			(points[1].getX() < (imgCenterX + TOLERANCE)) &&
+			(points[1].getY() > (imgCenterY - TOLERANCE)) &&
+			(points[1].getY() < (imgCenterY + TOLERANCE)));
+
+		boolean isOriented = ((tagOrientation < 10) || (tagOrientation > 350));
+			
+		System.out.println("PaperChaseAutoController: Tag centered ? " + isCentered + " Tag oriented ? " + isOriented);
+		
+		return isCentered && isOriented;
+	}
+	
+	private boolean hasTagBeenVisited()
+	{
+		synchronized(tag)
+		{
+			for (int i=0; i < tagVisitedList.size(); i++)
+			{
+				if (tag.getText().equals(tagVisitedList.get(i)))
+					return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private void strayAround() throws InterruptedException
+	{
+		int direction = new Random().nextInt() % 4;
+		switch(direction)
+		{
+		case 0 : drone.getCommandManager().goLeft(slowspeed); System.out.println("PaperChaseAutoController: Stray Around: LEFT"); break;
+		case 1 : drone.getCommandManager().goRight(slowspeed); System.out.println("PaperChaseAutoController: Stray Around: RIGHT");break;
+			case 2 : drone.getCommandManager().goLeft(slowspeed); System.out.println("PaperChaseAutoController: Stray Around: LEFT"); break;
+			case 3 : drone.getCommandManager().goRight(slowspeed); System.out.println("PaperChaseAutoController: Stray Around: RIGHT");break;
+		}
+		
+		Thread.currentThread().sleep(500);
+	}
+	
+	private void centerTag() throws InterruptedException
+	{
+		String tagText;
+		ResultPoint[] points;
+		
+		synchronized(tag)
+		{
+			points = tag.getResultPoints();	
+			tagText = tag.getText();
+		}
+		
+		int imgCenterX = (int) midPoint_x;
+		int imgCenterY = (int) midPoint_y;
+		
+		float x = points[1].getX();
+		float y = points[1].getY();
+		
+		if ((tagOrientation > 10) && (tagOrientation < 180))
+		{
+			System.out.println("PaperChaseAutoController: Spin left");
+			drone.getCommandManager().spinLeft(slowspeed * 2);
+			Thread.currentThread().sleep(200);
+		}
+		else if ((tagOrientation < 350) && (tagOrientation > 180))
+		{
+			System.out.println("PaperChaseAutoController: Spin right");
+			drone.getCommandManager().spinRight(slowspeed * 2);
+			Thread.currentThread().sleep(200);
+		}
+		else if (x < (imgCenterX - TOLERANCE))
+		{
+			System.out.println("PaperChaseAutoController: Go left");
+			drone.getCommandManager().goLeft(slowspeed);
+			Thread.currentThread().sleep(200);
+		}
+		else if (x > (imgCenterX + TOLERANCE))
+		{
+			System.out.println("PaperChaseAutoController: Go right");
+			drone.getCommandManager().goRight(slowspeed);
+			Thread.currentThread().sleep(200);
+		}
+		else if (y < (imgCenterY - TOLERANCE))
+		{
+			System.out.println("PaperChaseAutoController: Go up");
+			drone.getCommandManager().up(slowspeed);
+			Thread.currentThread().sleep(200);
+		}
+		else if (y > (imgCenterY + PaperChase.TOLERANCE))
+		{
+			System.out.println("PaperChaseAutoController: Go down");
+			drone.getCommandManager().down(slowspeed);
+			Thread.currentThread().sleep(200);
+		}
+		else
+		{
+			System.out.println("PaperChaseAutoController: Tag centered");
+			drone.getCommandManager().setLedsAnimation(LEDAnimation.BLINK_GREEN, 10, 5);
+			
+			tagVisitedList.add(tagText);
+		}
+	}
+	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+	
+			takeOff();
+			hover();
+//			cmd.moveToAltitude(1500);
+			increaseAltitude(50);
+			hover();
+			while(true){
+				try {
+					findCircleCenter();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
+			}
+			
+			
+				
+			}
+
+//				while(true){
+//			try {
+//				findCircleCenter();
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+		
+	}
+	
