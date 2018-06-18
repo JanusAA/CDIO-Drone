@@ -26,7 +26,7 @@ import imageDetection.Circle;
 import imageDetection.CircleListener;
 import droneTest.GUITest;
 
-public class DroneCommander extends AbstractTestController implements CircleListener, QRListener{
+public class DroneCommander {
 
 
 	private ArrayList<CircleListener> listeners = new ArrayList<CircleListener>();
@@ -78,6 +78,7 @@ public class DroneCommander extends AbstractTestController implements CircleList
 	 */
 	public void takeOff(){
 		cmd.takeOff().doFor(5000);
+		moveToAltitude(1000);
 		System.out.println("Takeoff");
 	}
 	
@@ -560,16 +561,16 @@ public class DroneCommander extends AbstractTestController implements CircleList
 		}
 	}
 
-	public void onTag(Result result, float orientation)
-	{
-		if (result == null) // ToDo: do not call if no tag is present
-			return;
-		
-		System.out.println("PaperChaseAutoController: Tag found");
-
-		tag = result;
-		tagOrientation = orientation;
-	}
+//	public void onTag(Result result, float orientation)
+//	{
+//		if (result == null) // ToDo: do not call if no tag is present
+//			return;
+//		
+//		System.out.println("PaperChaseAutoController: Tag found");
+//
+//		tag = result;
+//		tagOrientation = orientation;
+//	}
 	
 	
 	private boolean isTagCentered()
@@ -611,7 +612,7 @@ public class DroneCommander extends AbstractTestController implements CircleList
 		return false;
 	}
 	
-	private void strayAround() throws InterruptedException
+	public void strayAround() throws InterruptedException
 	{
 		int direction = new Random().nextInt() % 4;
 		switch(direction)
@@ -625,7 +626,7 @@ public class DroneCommander extends AbstractTestController implements CircleList
 		Thread.currentThread().sleep(500);
 	}
 	
-	private void centerTag() throws InterruptedException
+	public void centerTag() throws InterruptedException
 	{
 		String tagText;
 		ResultPoint[] points;

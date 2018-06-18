@@ -49,7 +49,7 @@ public class GUITest {
 		circles.addListener(gui);
 		scanner.addListener(gui);
 		circles.addListener(cmd);
-		scanner.addListener(cmd);
+//		scanner.addListener(cmd);
 		
 		
 		

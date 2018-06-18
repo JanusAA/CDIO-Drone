@@ -1,13 +1,29 @@
 package controllers;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.opencv.core.Point;
 
 import com.google.zxing.Result;
+import com.google.zxing.ResultPoint;
 
 import QR.QRCode;
 import QR.QRListener;
 import controllers.DroneStateController.Command;
 import de.yadrone.base.ARDrone;
+import de.yadrone.base.IARDrone;
+import de.yadrone.base.exception.ARDroneException;
+import de.yadrone.base.exception.IExceptionListener;
+import de.yadrone.base.exception.VideoException;
+import de.yadrone.base.navdata.Altitude;
+import de.yadrone.base.navdata.AltitudeListener;
+import de.yadrone.base.video.ImageListener;
+import droneTest.DroneCommander;
+import droneTest.GUITest;
+import imageDetection.Circle;
+import imageDetection.CircleListener;
 
 
 /*
@@ -16,106 +32,207 @@ import de.yadrone.base.ARDrone;
  */
 
 
-public class MainController implements QRListener {
-	
-	public final static int IMAGE_WIDTH = 640;
-	public final static int IMAGE_HEIGHT = 360;
-	
-	public final static int TOLERANCE = 40;
-	
-	//Defines the start gate:
-	private int nextGate = 0;
-	//Defines the maximum number of gates: 
-	private final int maxGates = 5;
-	
-	private Result tag;
+public class MainController extends AbstractDroneController implements QRListener, CircleListener, ImageListener {
+	private int speed = 30;  // The base velocity in %
+	private int slowspeed = 3;  //  The velocity used for centralizing in %
+	private int slowtime = 200;	//	The time centralizing commands are done in ms
+	private double ErrorMargin = 10;	// the Margin of Error in which the center of a circle can be fount
+	private double midPoint_x = GUITest.IMAGE_WIDTH/2;	// Camera midpoint in x
+	private double midPoint_y = GUITest.IMAGE_HEIGHT/2;	// camera midpoint in y
 	private float tagOrientation;
+	private double max_radius = 90;	// The size of the circle we want on the camera
+	protected Result tag;
+	private Circle[] circles;
+	private int altitude;
 	
-	private ARDrone drone = null;
-	private DroneStateController droneStateController;
-	private QRCode scanner = null;
-	//ArrayList to hold gatenumbers p.00, p.01 etc..
+	protected double lastImageTimer;
+	protected int circleRadius = (int) (MainDroneStarter.IMAGE_HEIGHT * 0.45);
 	private ArrayList<String> gates = new ArrayList<String>();
-	public boolean stop;
+	private DroneStateController stateCon;
 	
-	private DroneStateController dsc;
-	
-	public DroneStateController getDsc() {
-		return dsc;
-	}
-
-
-
-	public MainController() {
-		//For loop which fills gates with gatenumbers: 
-		for(int i = 0; i < 7; i++){
-			gates.add("p.0" + i);
-		}
-		
-		
+	public DroneStateController getStateCon() {
+		return stateCon;
 	}
 	
+	public MainController(IARDrone drone){
+		super(drone);
+		for (int i = 0; i <= 7; i++)
+			gates.add("P.0" + i);
+		setupAltitudeListener();
+		
+		drone.addExceptionListener(new ExceptionListener());
+	}
+	
+	@Override
 	public void run() {
-		this.stop = false;
-		dsc = new DroneStateController();
-		dsc.state = Command.TakeOff;
-		while (!stop){
+		this.doStop = false;
+		stateCon = new DroneStateController(this, drone, drone.getCommandManager());
+		stateCon.state = Command.TakeOff;
+		while(!doStop)
+		{
 			try {
-				if((tag != null) && (System.currentTimeMillis() - tag.getTimestamp() > 2000)){
-					System.out.println("Resetting tag - ms our of bounds");
+				if((tag != null) && (System.currentTimeMillis() - tag.getTimestamp() > 2000)) {
+					System.out.println("Tag Reset");
 					tag = null;
 				}
-				dsc.commands(dsc.state);
-				Thread.currentThread().sleep(200);
+				stateCon.commands(stateCon.state);
+				this.sleep(100);
 			} catch (InterruptedException e){
 				e.printStackTrace();
 			}
 		}
 	}
+	
+	Result getTag() {
+		return tag;
+	}
 
-	/**
-	 * Get method for tag
-	 * @return tag, String read from QR
-	 */
-		public Result getTag() {
-			return tag; 
-		}
+	ArrayList<String> getGates() {
+		return gates;
+	}
+
+
+	Circle[] getCircles() {
+		return circles;
+	}
+
+	public void onTag(Result result, float orientation) {
+		if (result == null)
+			return;
+		tag = result;
+	}
+	
+	public void CircleIsCentered() throws InterruptedException {
+		if(circles.length > 0){
+	Circle[] circle = circles;
+		double circle_x = Math.abs(circle[0].x);
+		double circle_y = Math.abs(circle[0].y);
+		double circle_r = Math.abs(circle[0].r);
+		System.out.println(circle_r);
+		double abs_dif_x = Math.abs(circle_x - midPoint_x);
+		double abs_dif_y = Math.abs(circle_y - midPoint_y);
+		double abs_dif_r = Math.abs(circle_r - max_radius);
 		
-		public float getTagOrientation(){
-			return tagOrientation;
+		
+		if(abs_dif_x > abs_dif_y){
+			System.out.println("x");
+		if (circle_x < (midPoint_x + (ErrorMargin/2)))
+			{
+			System.out.println("Go left");
+			drone.getCommandManager().goRight(slowspeed);
+			Thread.currentThread().sleep(200);
+			stateCon.hover();
+			}
+		else if (circle_x > (midPoint_x + (ErrorMargin/2)))
+			{
+			System.out.println("PaperChaseAutoController: Go right");
+			drone.getCommandManager().goLeft(slowspeed);
+			Thread.currentThread().sleep(200);
+			stateCon.hover();
+			}
 		}
-		/**
-		 * Method to get gates, 
-		 * @return ArrayList with gatenumbers (strings equivalent to QR codes on gates)
-		 */
-		public ArrayList<String> getGates(){
-			return gates;
+		else if(abs_dif_y > abs_dif_x){
+		if (circle_y < (midPoint_y + (ErrorMargin/4)))
+		{
+			System.out.println("PaperChaseAutoController: Go left");
+			drone.getCommandManager().up(slowspeed);
+			Thread.currentThread().sleep(200);
+			stateCon.hover();
 		}
+		else if (circle_y > (midPoint_y + (ErrorMargin/4)))
+		{
+			System.out.println("PaperChaseAutoController: Go left");
+			drone.getCommandManager().down(slowspeed);
+			Thread.currentThread().sleep(200);
+			stateCon.hover();
+		}
+		}}
+	}
+	
+	public boolean isQRCentered(){
+		if (tag == null)
+			return false;
+		
+		Point center = getQRCenter(this.tag);
+		
+		int imgCenterX = MainDroneStarter.IMAGE_WIDTH / 2;
+		int imgCenterY = MainDroneStarter.IMAGE_HEIGHT / 2;
+		
+		return (( center.x > (imgCenterX - MainDroneStarter.TOLERANCE))
+				&& (center.x < (imgCenterX + MainDroneStarter.TOLERANCE))
+				&& (center.y > (imgCenterY - MainDroneStarter.TOLERANCE))
+				&& (center.y < (imgCenterY + MainDroneStarter.TOLERANCE)
+				&& (getQRSize() < (MainDroneStarter.IMAGE_WIDTH / 14))));
+	}
+	
+	@Override
+	public void imageUpdated(BufferedImage image) {
+		this.lastImageTimer = System.currentTimeMillis();
+	}
+	
+	@Override
+	public void circlesUpdated(Circle[] circle) {
+		this.circles = circle;
+	}
+	
+	public double getQRSize() {
+		if (tag != null){
+			ResultPoint[] points = tag.getResultPoints();
+			return points[2].getX() - points[1].getX();
+		}			
+		else
+			return 0.0;
+	}
+	
+	private Point getQRCenter(Result tag) {
+		ResultPoint[] points = tag.getResultPoints();
+		double dy = (points[0].getY() + points[1].getY()) / 2; 
+		double dx = (points[1].getX() + points[2].getX()) / 2; 
+		return new Point(dx, dy);
+	}
+	
+	public double getQRRelativeAngle(Result tag) {
+		final double cameraAngle = 92;
+		final double imgCenterX = MainDroneStarter.IMAGE_WIDTH / 2;
+		double degPerPx = cameraAngle / MainDroneStarter.IMAGE_WIDTH;
 
+		synchronized (tag) {
+			// TODO Consider if we should handle the Y offset
+			if (tag == null)
+				return 0.0;
+			Point qrCenter = getQRCenter(tag);
+			return (qrCenter.x - imgCenterX) * degPerPx;
+		}
+	}
+	
+	public double getQRRelativeAngle() {
+		return getQRRelativeAngle(this.tag);
+	}
+	
+	private void setupAltitudeListener() {
+		drone.getNavDataManager().addAltitudeListener(new AltitudeListener() {
+			@Override
+			public void receivedAltitude(int a) {
+				altitude = a;
+			}
+
+			@Override
+			public void receivedExtendedAltitude(Altitude d) {
+			}
+		});
+	}
+	
+	public int getAltitude() {
+		return this.altitude;
+	}
+	
+	class ExceptionListener implements IExceptionListener {
 		@Override
-		public void onTag(Result result, float orientation) {
-			if (result == null)
-				return;
-			tag = result; 
-			tagOrientation = orientation;
-
+		public void exeptionOccurred(ARDroneException exc) {
+			if (exc.getClass().equals(VideoException.class)) {
+				System.out.println("Got VideoException, trying to restart");
+				drone.getVideoManager().reinitialize();
+			}
 		}
-
-	public static void main(String[] args) {
-		new MainController();
 	}
-	
-	public void setGate(){
-		nextGate++;
-	}
-	
-	public int getGate(){
-		return nextGate;
-	}
-	
-	public int getMaxGate(){
-		return maxGates;
-	}
-
-		
 }

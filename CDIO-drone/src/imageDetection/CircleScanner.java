@@ -16,9 +16,8 @@ public class CircleScanner implements ImageListener {
 
 	private ArrayList<CircleListener> listeners = new ArrayList<CircleListener>();
 	private long imageCounter = 0;
-	private int framesWanted = 2; // Checks every 15th frame
+	private int framesWanted = 5; // Checks every 15th frame
 	private static int blurLevel = 5; // Amount of blurring,
-	public static Circle[] cir;
 	private static double dp = 1.1;
 	private static int minDist = 50; // Distance between centers
 	
@@ -78,6 +77,10 @@ public class CircleScanner implements ImageListener {
 				Circle[] circles = scanForCirclesBuff(img);
 				for (CircleListener listener : listeners)
 					listener.circlesUpdated(circles);
+	}
+	
+	public void removeListener(CircleListener listener) {
+		this.listeners.remove(listener);
 	}
 }
 
