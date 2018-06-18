@@ -29,7 +29,7 @@ public class DroneStateController {
 	private int counterCircle = 0;
 	private int altcount = 0;
 	private int methodecount = 0;  // Count Used to limit the calls done in findCircleCenter
-	private int countmax = 5;	//	The amount of centered circles we need before flying through a circle
+	private int countmax = 3;	//	The amount of centered circles we need before flying through a circle
 	private boolean findCircle = false;	//	When true we look for circles
 	public enum Mode {
 		Normal, Continous
@@ -204,11 +204,20 @@ public class DroneStateController {
 //	}
 	
 public void findCircleCenter() throws InterruptedException{
-	if(control.CircleIsCentered()){
+	if(count < countmax){
+		if(control.CircleIsCentered()){
+			count++;
+			System.out.println(count);
+		}
+		else count = 0;
+	}
+	if(count > countmax){
+		System.out.println(count);
 		System.out.println("SEE YAAAAA");
 		state = Command.FlyThrough;
 	}
 	else
+		System.out.println("JEG ER IKKE I MIDTEN");
 		state = Command.CentralizeCircle;
 	}
 
