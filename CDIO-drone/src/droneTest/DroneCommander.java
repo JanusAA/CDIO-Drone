@@ -506,7 +506,6 @@ public class DroneCommander {
 //	}
 	
 
-	@Override
 	public void circlesUpdated(Circle[] circle) {
 		if (circle == null) // ToDo: do not call if no tag is present
 			return;
@@ -688,7 +687,6 @@ public class DroneCommander {
 		}
 	}
 	
-	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 	

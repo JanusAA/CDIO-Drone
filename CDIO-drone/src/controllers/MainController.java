@@ -40,29 +40,29 @@ public class MainController extends AbstractDroneController implements QRListene
 	private double midPoint_x = GUITest.IMAGE_WIDTH/2;	// Camera midpoint in x
 	private double midPoint_y = GUITest.IMAGE_HEIGHT/2;	// camera midpoint in y
 	private float tagOrientation;
-	private double max_radius = 90;	// The size of the circle we want on the camera
+	private double max_radius = 120;	// The size of the circle we want on the camera
 	protected Result tag;
 	private Circle[] circles;
 	private int altitude;
-	
+
 	protected double lastImageTimer;
 	protected int circleRadius = (int) (MainDroneStarter.IMAGE_HEIGHT * 0.45);
 	private ArrayList<String> gates = new ArrayList<String>();
 	private DroneStateController stateCon;
-	
+
 	public DroneStateController getStateCon() {
 		return stateCon;
 	}
-	
+
 	public MainController(IARDrone drone){
 		super(drone);
 		for (int i = 0; i <= 7; i++)
 			gates.add("P.0" + i);
 		setupAltitudeListener();
-		
+
 		drone.addExceptionListener(new ExceptionListener());
 	}
-	
+
 	@Override
 	public void run() {
 		this.doStop = false;
@@ -82,7 +82,7 @@ public class MainController extends AbstractDroneController implements QRListene
 			}
 		}
 	}
-	
+
 	Result getTag() {
 		return tag;
 	}
@@ -101,83 +101,106 @@ public class MainController extends AbstractDroneController implements QRListene
 			return;
 		tag = result;
 	}
-	
+
 	public boolean CircleIsCentered() throws InterruptedException {
 		boolean centered = false;
 		if(circles.length > 0){
-	Circle[] circle = circles;
-		double circle_x = Math.abs(circle[0].x);
-		double circle_y = Math.abs(circle[0].y);
-		double circle_r = Math.abs(circle[0].r);
-		System.out.println(circle_r);
-		double abs_dif_x = Math.abs(circle_x - midPoint_x);
-		double abs_dif_y = Math.abs(circle_y - midPoint_y);
-		double abs_dif_r = Math.abs(circle_r - max_radius);
-		
-		
-		if(abs_dif_x > (abs_dif_y)){
-		if (circle_x < (midPoint_x + (ErrorMargin/2)))
-			{
-			System.out.println("Go left");
-			drone.getCommandManager().goLeft(slowspeed).doFor(500);
+			Circle[] circle = circles;
+			double circle_x = Math.abs(circle[0].x);
+			double circle_y = Math.abs(circle[0].y);
+			double circle_r = Math.abs(circle[0].r);
+			System.out.println(circle_r);
+			double abs_dif_x = Math.abs(circle_x - midPoint_x);
+			double abs_dif_y = Math.abs(circle_y - midPoint_y);
+			double abs_dif_r = Math.abs(circle_r - max_radius);
+
+			if(!(circle_x <= midPoint_x + (ErrorMargin) && circle_x >= midPoint_x - (ErrorMargin))){
+			if(abs_dif_x > (abs_dif_y) && abs_dif_x > abs_dif_r){
+				if (circle_x < (midPoint_x + (ErrorMargin/2)))
+				{
+					System.out.println("Go left");
+					drone.getCommandManager().goLeft(slowspeed).doFor(800);
+					drone.getCommandManager().hover().doFor(200);
+				}
+				else if (circle_x > (midPoint_x + (ErrorMargin/2)))
+				{
+					System.out.println("Go right");
+					drone.getCommandManager().goRight(slowspeed).doFor(800);
+					drone.getCommandManager().hover().doFor(200);
+				}
 			}
-		else if (circle_x > (midPoint_x + (ErrorMargin/2)))
-			{
-			System.out.println("Go right");
-			drone.getCommandManager().goRight(slowspeed).doFor(500);
 			}
-		}
-		else if((abs_dif_y) > abs_dif_x){
-		if (circle_y < (midPoint_y + (ErrorMargin/4)))
-		{
-			System.out.println("Go up");
-			drone.getCommandManager().up(slowspeed).doFor(500);
-		}
-		else if (circle_y > (midPoint_y + (ErrorMargin/4)))
-		{
-			System.out.println("Go down");
-			drone.getCommandManager().down(slowspeed).doFor(500);
-		}
-		}
-		System.out.println("Hovering");
-		drone.getCommandManager().hover().doFor(1000);
-		System.out.println("Hovering ended");
-		if(circle_x <= midPoint_x + (ErrorMargin) && circle_x >= midPoint_x - (ErrorMargin)){
-			if(circle_y <= midPoint_y + (ErrorMargin) && circle_y >= midPoint_y - (ErrorMargin)){
-				System.out.println("Centreret!!");
-				centered = true;
-			}}
-		return centered;
+			if(!(circle_y <= midPoint_y + (ErrorMargin) && circle_y >= midPoint_y - (ErrorMargin))){
+			if((abs_dif_y) > abs_dif_x && abs_dif_y > abs_dif_r){
+				if (circle_y < (midPoint_y + (ErrorMargin/4)))
+				{
+					System.out.println("Go up");
+					drone.getCommandManager().up(slowspeed).doFor(800);
+					drone.getCommandManager().hover().doFor(200);
+				}
+				else if (circle_y > (midPoint_y + (ErrorMargin/4)))
+				{
+					System.out.println("Go down");
+					drone.getCommandManager().down(slowspeed).doFor(800);
+					drone.getCommandManager().hover().doFor(200);
+				}
+			}
+			}
+			if(!(circle_r <= max_radius + (ErrorMargin/2) && circle_r >= max_radius - (ErrorMargin/2))){
+				if((abs_dif_r) > abs_dif_x && abs_dif_r > abs_dif_y){
+			if (circle_r < max_radius){
+				System.out.println("PaperChaseAutoController: Go forward");
+				drone.getCommandManager().forward(slowspeed).doFor(800);
+				drone.getCommandManager().hover().doFor(200);
+			}
+			else if (circle_r > max_radius){
+				System.out.println("PaperChaseAutoController: Go backwards");
+				drone.getCommandManager().backward(slowspeed).doFor(800);
+				drone.getCommandManager().hover().doFor(200);
+				}
+			}
+			}
+			System.out.println("Hovering");
+			drone.getCommandManager().hover().doFor(1000);
+			System.out.println("Hovering ended");
+			if(circle_x <= midPoint_x + (ErrorMargin) && circle_x >= midPoint_x - (ErrorMargin)){
+				if(circle_y <= midPoint_y + (ErrorMargin) && circle_y >= midPoint_y - (ErrorMargin)){
+					if(circle_r <= max_radius + (ErrorMargin/2) && circle_r >= max_radius - (ErrorMargin/2)){
+					System.out.println("Centreret!!");
+					centered = true;
+					}
+				}}
+			return centered;
 		}
 		return centered;
 	}
-	
+
 	public boolean isQRCentered(){
 		if (tag == null)
 			return false;
-		
+
 		Point center = getQRCenter(this.tag);
-		
+
 		int imgCenterX = MainDroneStarter.IMAGE_WIDTH / 2;
 		int imgCenterY = MainDroneStarter.IMAGE_HEIGHT / 2;
-		
+
 		return (( center.x > (imgCenterX - MainDroneStarter.TOLERANCE))
 				&& (center.x < (imgCenterX + MainDroneStarter.TOLERANCE))
 				&& (center.y > (imgCenterY - MainDroneStarter.TOLERANCE))
 				&& (center.y < (imgCenterY + MainDroneStarter.TOLERANCE)
-				&& (getQRSize() < (MainDroneStarter.IMAGE_WIDTH / 14))));
+						&& (getQRSize() < (MainDroneStarter.IMAGE_WIDTH / 14))));
 	}
-	
+
 	@Override
 	public void imageUpdated(BufferedImage image) {
 		this.lastImageTimer = System.currentTimeMillis();
 	}
-	
+
 	@Override
 	public void circlesUpdated(Circle[] circle) {
 		this.circles = circle;
 	}
-	
+
 	public double getQRSize() {
 		if (tag != null){
 			ResultPoint[] points = tag.getResultPoints();
@@ -186,32 +209,31 @@ public class MainController extends AbstractDroneController implements QRListene
 		else
 			return 0.0;
 	}
-	
+
 	private Point getQRCenter(Result tag) {
 		ResultPoint[] points = tag.getResultPoints();
 		double dy = (points[0].getY() + points[1].getY()) / 2; 
 		double dx = (points[1].getX() + points[2].getX()) / 2; 
 		return new Point(dx, dy);
 	}
-	
+
 	public double getQRRelativeAngle(Result tag) {
 		final double cameraAngle = 92;
 		final double imgCenterX = MainDroneStarter.IMAGE_WIDTH / 2;
 		double degPerPx = cameraAngle / MainDroneStarter.IMAGE_WIDTH;
 
 		synchronized (tag) {
-			// TODO Consider if we should handle the Y offset
 			if (tag == null)
 				return 0.0;
 			Point qrCenter = getQRCenter(tag);
 			return (qrCenter.x - imgCenterX) * degPerPx;
 		}
 	}
-	
+
 	public double getQRRelativeAngle() {
 		return getQRRelativeAngle(this.tag);
 	}
-	
+
 	private void setupAltitudeListener() {
 		drone.getNavDataManager().addAltitudeListener(new AltitudeListener() {
 			@Override
@@ -224,16 +246,16 @@ public class MainController extends AbstractDroneController implements QRListene
 			}
 		});
 	}
-	
+
 	public int getAltitude() {
 		return this.altitude;
 	}
-	
+
 	class ExceptionListener implements IExceptionListener {
 		@Override
 		public void exeptionOccurred(ARDroneException exc) {
 			if (exc.getClass().equals(VideoException.class)) {
-				System.out.println("Got VideoException, trying to restart");
+				System.out.println("Video issue, trying to establish videofeed");
 				drone.getVideoManager().reinitialize();
 			}
 		}
