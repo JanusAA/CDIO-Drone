@@ -34,9 +34,9 @@ import imageDetection.CircleListener;
 
 public class MainController extends AbstractDroneController implements QRListener, CircleListener, ImageListener {
 	private int speed = 30;  // The base velocity in %
-	private int slowspeed = 3;  //  The velocity used for centralizing in %
+	private int slowspeed = 5;  //  The velocity used for centralizing in %
 	private int slowtime = 200;	//	The time centralizing commands are done in ms
-	private double ErrorMargin = 10;	// the Margin of Error in which the center of a circle can be fount
+	private double ErrorMargin = 20;	// the Margin of Error in which the center of a circle can be fount
 	private double midPoint_x = GUITest.IMAGE_WIDTH/2;	// Camera midpoint in x
 	private double midPoint_y = GUITest.IMAGE_HEIGHT/2;	// camera midpoint in y
 	private float tagOrientation;
@@ -102,7 +102,8 @@ public class MainController extends AbstractDroneController implements QRListene
 		tag = result;
 	}
 	
-	public void CircleIsCentered() throws InterruptedException {
+	public boolean CircleIsCentered() throws InterruptedException {
+		boolean centered = false;
 		if(circles.length > 0){
 	Circle[] circle = circles;
 		double circle_x = Math.abs(circle[0].x);
@@ -114,39 +115,41 @@ public class MainController extends AbstractDroneController implements QRListene
 		double abs_dif_r = Math.abs(circle_r - max_radius);
 		
 		
-		if(abs_dif_x > abs_dif_y){
-			System.out.println("x");
+		if(abs_dif_x > (abs_dif_y)){
 		if (circle_x < (midPoint_x + (ErrorMargin/2)))
 			{
 			System.out.println("Go left");
-			drone.getCommandManager().goRight(slowspeed);
-			Thread.currentThread().sleep(200);
-			stateCon.hover();
+			drone.getCommandManager().goLeft(slowspeed).doFor(500);
 			}
 		else if (circle_x > (midPoint_x + (ErrorMargin/2)))
 			{
-			System.out.println("PaperChaseAutoController: Go right");
-			drone.getCommandManager().goLeft(slowspeed);
-			Thread.currentThread().sleep(200);
-			stateCon.hover();
+			System.out.println("Go right");
+			drone.getCommandManager().goRight(slowspeed).doFor(500);
 			}
 		}
-		else if(abs_dif_y > abs_dif_x){
+		else if((abs_dif_y) > abs_dif_x){
 		if (circle_y < (midPoint_y + (ErrorMargin/4)))
 		{
-			System.out.println("PaperChaseAutoController: Go left");
-			drone.getCommandManager().up(slowspeed);
-			Thread.currentThread().sleep(200);
-			stateCon.hover();
+			System.out.println("Go up");
+			drone.getCommandManager().up(slowspeed).doFor(500);
 		}
 		else if (circle_y > (midPoint_y + (ErrorMargin/4)))
 		{
-			System.out.println("PaperChaseAutoController: Go left");
-			drone.getCommandManager().down(slowspeed);
-			Thread.currentThread().sleep(200);
-			stateCon.hover();
+			System.out.println("Go down");
+			drone.getCommandManager().down(slowspeed).doFor(500);
 		}
-		}}
+		}
+		System.out.println("Hovering");
+		drone.getCommandManager().hover().doFor(1000);
+		System.out.println("Hovering ended");
+		if(circle_x <= midPoint_x + (ErrorMargin) && circle_x >= midPoint_x - (ErrorMargin)){
+			if(circle_y <= midPoint_y + (ErrorMargin) && circle_y >= midPoint_y - (ErrorMargin)){
+				System.out.println("Centreret!!");
+				centered = true;
+			}}
+		return centered;
+		}
+		return centered;
 	}
 	
 	public boolean isQRCentered(){

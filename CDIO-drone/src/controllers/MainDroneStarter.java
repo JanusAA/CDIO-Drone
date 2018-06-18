@@ -8,6 +8,7 @@ import org.opencv.core.Core;
 import QR.QRCode;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
+import de.yadrone.base.command.CommandManager;
 import de.yadrone.base.command.VideoChannel;
 import de.yadrone.base.navdata.AttitudeListener;
 import imageDetection.CircleScanner;
@@ -62,6 +63,8 @@ public class MainDroneStarter {
 		Scanner scan = new Scanner(System.in);
 		scan.nextLine();
 		droneControl.run();
+		
+		CommandManager cmd = drone.getCommandManager();
 		
 	}
 	

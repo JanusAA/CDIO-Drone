@@ -5,7 +5,6 @@ import java.util.Timer;
 
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
-
 import de.yadrone.apps.paperchase.PaperChase;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.CommandManager;
@@ -66,6 +65,11 @@ public class DroneStateController {
 	}
 
 	public void commands (Command command) throws InterruptedException{
+		if (System.currentTimeMillis() - this.control.lastImageTimer > 10) {
+			System.out.println("Image lag, delaying commands...");
+			drone.hover();
+			MainController.sleep(150);
+		}
 		switch (command) {
 
 		//Gets the drone airborne
@@ -88,11 +92,12 @@ public class DroneStateController {
 			break;
 			
 		case CentralizeCircle:
-			control.CircleIsCentered();
+			findCircleCenter();
 			break;
 			
+			
 		case FlyThrough:
-			flyForward(5);
+			cmd.forward(25).doFor(1000);
 			break;
 			
 		case StrayAround:
@@ -112,14 +117,14 @@ public class DroneStateController {
 		// Takeoff
 		System.out.println("State: ReadyForTakeOff");
 		cmd.flatTrim();
-		takeOff();
+		cmd.takeOff().doFor(5000);
 		state = Command.Hover;
 	}
 
 	public void hoverDrone() throws InterruptedException {
 		// Hover method
 		System.out.println("State: Hover");
-		drone.hover();
+		cmd.hover().doFor(1000);
 		control.sleep(100);
 		// Check conditions and transit to next state
 		state = Command.SearchForCircle;
@@ -134,6 +139,8 @@ public class DroneStateController {
 	
 	Circle lastCircle;
 	int lastCircleCount = 0;
+	int CenteredCount = 0;
+	int CenteredMax = 5;
 
 	public void searchForCircle() throws InterruptedException {
 		// Increase altitude and search for the circle
@@ -151,12 +158,13 @@ public class DroneStateController {
 			if (lastCircle != null) {
 				if (++lastCircleCount > 10) {
 					System.out.println("lastCircle for the 10th time!!!");
-					state = Command.StrayAround;
 					Thread.currentThread().sleep(200);
 					lastCircleCount = 0;
+					state = Command.StrayAround;
 					return;
 				}
 			} else {
+				CenteredCount = 0;
 				System.out.println("No lastCircle?!");
 				this.state = Command.StrayAround;
 				control.sleep(200);
@@ -196,8 +204,28 @@ public class DroneStateController {
 //	}
 	
 public void findCircleCenter() throws InterruptedException{
-	control.CircleIsCentered();
+	if(control.CircleIsCentered()){
+		System.out.println("SEE YAAAAA");
+		state = Command.FlyThrough;
+	}
+	else
+		state = Command.CentralizeCircle;
+	}
+
+
+public boolean CircleInCenter(Circle c){
+boolean centered = false;
+	if(c.x <= midPoint_x + (ErrorMargin/2) && c.x >= midPoint_x - (ErrorMargin/2)){
+		if(c.y <= midPoint_y + (ErrorMargin/2) && c.y >= midPoint_y - (ErrorMargin/2)){
+			System.out.println("Centreret!!");
+			centered = true;
+		}}
+	return centered;
 }
+
+
+
+
 /**
  * Take off Method
  * The first method called when you need to fly
