@@ -26,22 +26,16 @@ import imageDetection.Circle;
 import imageDetection.CircleListener;
 
 
-/*
- * MainController class for drone control. 
- * 
- */
-
-
 public class MainController extends AbstractDroneController implements QRListener, CircleListener, ImageListener {
 	private int speed = 30;  // The base velocity in %
 	private int slowspeed = 5;  //  The velocity used for centralizing in %
 	private int slowtime = 200;	//	The time centralizing commands are done in ms
 	private double ErrorMargin = 20;	// the Margin of Error in which the center of a circle can be fount
-	private double midPoint_x = GUITest.IMAGE_WIDTH/2;	// Camera midpoint in x
-	private double midPoint_y = GUITest.IMAGE_HEIGHT/2;	// camera midpoint in y
+	private double midPoint_x = MainDroneStarter.IMAGE_WIDTH/2;	// Camera midpoint in x
+	private double midPoint_y = MainDroneStarter.IMAGE_HEIGHT/2;	// camera midpoint in y
 	private float tagOrientation;
 	private double max_radius = 120;	// The size of the circle we want on the camera
-	protected Result tag;
+	protected Result QRtag;
 	private Circle[] circles;
 	private int altitude;
 
@@ -56,10 +50,7 @@ public class MainController extends AbstractDroneController implements QRListene
 
 	public MainController(IARDrone drone){
 		super(drone);
-		for (int i = 0; i <= 7; i++)
-			gates.add("P.0" + i);
 		setupAltitudeListener();
-
 		drone.addExceptionListener(new ExceptionListener());
 	}
 
@@ -71,25 +62,14 @@ public class MainController extends AbstractDroneController implements QRListene
 		while(!doStop)
 		{
 			try {
-				if((tag != null) && (System.currentTimeMillis() - tag.getTimestamp() > 2000)) {
-					System.out.println("Tag Reset");
-					tag = null;
-				}
 				stateCon.commands(stateCon.state);
-				this.sleep(100);
 			} catch (InterruptedException e){
 				e.printStackTrace();
 			}
 		}
 	}
 
-	Result getTag() {
-		return tag;
-	}
-
-	ArrayList<String> getGates() {
-		return gates;
-	}
+	
 
 
 	Circle[] getCircles() {
@@ -99,7 +79,7 @@ public class MainController extends AbstractDroneController implements QRListene
 	public void onTag(Result result, float orientation) {
 		if (result == null)
 			return;
-		tag = result;
+		QRtag = result;
 	}
 
 	public boolean CircleIsCentered() throws InterruptedException {
@@ -119,7 +99,7 @@ public class MainController extends AbstractDroneController implements QRListene
 				if (circle_x < (midPoint_x + (ErrorMargin/2)))
 				{
 					System.out.println("Go left");
-					drone.getCommandManager().goLeft(slowspeed).doFor(800);
+					drone.getCommandManager().goLeft(slowspeed).doFor(1500);
 					drone.getCommandManager().hover().doFor(200);
 				}
 				else if (circle_x > (midPoint_x + (ErrorMargin/2)))
@@ -176,18 +156,18 @@ public class MainController extends AbstractDroneController implements QRListene
 	}
 
 	public boolean isQRCentered(){
-		if (tag == null)
+		if (QRtag == null)
 			return false;
 
-		Point center = getQRCenter(this.tag);
+		Point QRcenter = getQRCenter(this.QRtag);
 
-		int imgCenterX = MainDroneStarter.IMAGE_WIDTH / 2;
-		int imgCenterY = MainDroneStarter.IMAGE_HEIGHT / 2;
+		int CenterX =  (int) midPoint_x;
+		int CenterY = (int) midPoint_y;
 
-		return (( center.x > (imgCenterX - MainDroneStarter.TOLERANCE))
-				&& (center.x < (imgCenterX + MainDroneStarter.TOLERANCE))
-				&& (center.y > (imgCenterY - MainDroneStarter.TOLERANCE))
-				&& (center.y < (imgCenterY + MainDroneStarter.TOLERANCE)
+		return (( QRcenter.x > (CenterX - ErrorMargin))
+				&& (QRcenter.x < (CenterX + ErrorMargin))
+				&& (QRcenter.y > (CenterY - ErrorMargin))
+				&& (QRcenter.y < (CenterY + ErrorMargin)
 						&& (getQRSize() < (MainDroneStarter.IMAGE_WIDTH / 14))));
 	}
 
@@ -202,8 +182,8 @@ public class MainController extends AbstractDroneController implements QRListene
 	}
 
 	public double getQRSize() {
-		if (tag != null){
-			ResultPoint[] points = tag.getResultPoints();
+		if (QRtag != null){
+			ResultPoint[] points = QRtag.getResultPoints();
 			return points[2].getX() - points[1].getX();
 		}			
 		else
@@ -219,8 +199,8 @@ public class MainController extends AbstractDroneController implements QRListene
 
 	public double getQRRelativeAngle(Result tag) {
 		final double cameraAngle = 92;
-		final double imgCenterX = MainDroneStarter.IMAGE_WIDTH / 2;
-		double degPerPx = cameraAngle / MainDroneStarter.IMAGE_WIDTH;
+		final double imgCenterX = (int) midPoint_x;
+		double degPerPx = cameraAngle / (int) midPoint_x;
 
 		synchronized (tag) {
 			if (tag == null)
@@ -231,7 +211,7 @@ public class MainController extends AbstractDroneController implements QRListene
 	}
 
 	public double getQRRelativeAngle() {
-		return getQRRelativeAngle(this.tag);
+		return getQRRelativeAngle(this.QRtag);
 	}
 
 	private void setupAltitudeListener() {

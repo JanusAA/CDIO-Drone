@@ -31,15 +31,9 @@ public class DroneStateController {
 	private int methodecount = 0;  // Count Used to limit the calls done in findCircleCenter
 	private int countmax = 2;	//	The amount of centered circles we need before flying through a circle
 	private boolean findCircle = false;	//	When true we look for circles
-	public enum Mode {
-		Normal, Continous
-	}
-
-	private Mode currentMode;
-
+	
 	public enum Command {
-		TakeOff, Hover, CentralizeCircle, SearchForCircle, ValidateQR, StrayAround, FlyThrough, UpdateGate, Land
-	}
+		TakeOff, Hover, MoveToFirstCircle, LostCircleGoBack, CentralizeCircle, SearchForCircle, ValidateQR, StrayAround, FlyThrough, UpdateGate, Land	}
 
 	public Command state;
 
@@ -60,15 +54,14 @@ public class DroneStateController {
 		this.control = mainCon;
 		this.cmd = cmd;
 		this.drone = drone;
-		this.currentMode = Mode.Normal;
 		this.timer = new Timer();
 	}
 
 	public void commands (Command command) throws InterruptedException{
-		if (System.currentTimeMillis() - this.control.lastImageTimer > 10) {
+		if (System.currentTimeMillis() - this.control.lastImageTimer > 15) {
 			System.out.println("Image lag, delaying commands...");
 			drone.hover();
-			MainController.sleep(150);
+			MainController.sleep(200);
 		}
 		switch (command) {
 
@@ -81,10 +74,18 @@ public class DroneStateController {
 		case Hover: 
 			hoverDrone();
 			break; 
+		
+		case MoveToFirstCircle:
+			strayToFirstCircle();
+			break;
+			
+		case LostCircleGoBack:
+			lostCircleGoBack();
+			break;
 
 			// Used to validate the QR code, in order to differenciate between wallmarks and gates
 		case ValidateQR:
-			qRValidate();
+			validateQR();
 			break;
 
 		case SearchForCircle:
@@ -99,7 +100,7 @@ public class DroneStateController {
 		case FlyThrough:
 //			cmd.forward(25).doFor(1000);
 			System.out.println("Vi skal fremad! - Hurtigt!");
-			drone.getCommandManager().forward(25).doFor(4000);
+			drone.getCommandManager().forward(8).doFor(4000);
 			break;
 
 		case StrayAround:
@@ -119,7 +120,9 @@ public class DroneStateController {
 		// Takeoff
 		System.out.println("State: ReadyForTakeOff");
 		cmd.flatTrim();
-		cmd.takeOff().doFor(5000);
+		cmd.takeOff().doFor(3000);
+		
+		control.sleep(200);
 		state = Command.Hover;
 	}
 
@@ -127,15 +130,56 @@ public class DroneStateController {
 		// Hover method
 		System.out.println("State: Hover");
 		cmd.hover().doFor(1000);
+		cmd.up(20).doFor(2500);
+		cmd.hover().doFor(1000);
 		control.sleep(100);
 		// Check conditions and transit to next state
-		state = Command.SearchForCircle;
+		state = Command.MoveToFirstCircle;
 	}
 
 	int strayMode = 0;
 
+	public void strayToFirstCircle() throws InterruptedException {
+		System.out.println("State: MoveToFirstCircle");
+		int direction = new Random().nextInt() % 4;
+		switch(direction)
+		{
+		case 0 : drone.getCommandManager().goLeft(slowspeed); System.out.println("LEFT"); break;
+		case 1 : drone.getCommandManager().goLeft(slowspeed); System.out.println("LEFT");break;
+			case 2 : drone.getCommandManager().goLeft(slowspeed); System.out.println("LEFT"); break;
+			case 3 : drone.getCommandManager().goLeft(slowspeed); System.out.println("LEFT");break;
+		}
+		
+		Thread.currentThread().sleep(500);
+		if(control.getCircles().length >= 1){
+			this.state = Command.SearchForCircle;	
+		}
+		else
+			this.state = Command.MoveToFirstCircle;
+		
+	}
 
-	public void qRValidate() throws InterruptedException{
+	public void lostCircleGoBack() throws InterruptedException {
+		System.out.println("State: LostCircleGoBack");
+		int direction = new Random().nextInt() % 4;
+		switch(direction)
+		{
+		case 0 : drone.getCommandManager().backward(slowspeed).doFor(1500); System.out.println("BACK"); break;
+		case 1 : drone.getCommandManager().backward(slowspeed).doFor(1500); System.out.println("BACK");break;
+			case 2 : drone.getCommandManager().goLeft(slowspeed).doFor(1500); System.out.println("LEFT"); break;
+			case 3 : drone.getCommandManager().goLeft(slowspeed).doFor(1500); System.out.println("LEFT");break;
+		}
+		
+		Thread.currentThread().sleep(200);
+		if(control.getCircles().length >= 1){
+			this.state = Command.SearchForCircle;	
+		}
+		else
+			this.state = Command.LostCircleGoBack;
+		
+	}
+
+	public void validateQR() throws InterruptedException{
 		this.state = state.FlyThrough;
 	}
 
@@ -206,6 +250,9 @@ public class DroneStateController {
 	//	}
 
 	public void findCircleCenter() throws InterruptedException{
+		if(control.getCircles().length < 1){
+			state = Command.LostCircleGoBack;
+		}
 		if(count < countmax){
 			if(control.CircleIsCentered()){
 				count++;
