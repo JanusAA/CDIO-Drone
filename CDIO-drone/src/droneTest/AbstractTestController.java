@@ -1,8 +1,5 @@
 package droneTest;
 
-import com.google.zxing.Result;
-
-import QR.QRListener;
 import imageDetection.Circle;
 import imageDetection.CircleListener;
 

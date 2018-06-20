@@ -1,5 +1,11 @@
 package droneTest;
 
+/**
+ * used for testing
+ * The First class to control the videofeed
+ * used for drawing the circles and QR codes
+ */
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;

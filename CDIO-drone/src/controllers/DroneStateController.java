@@ -1,16 +1,22 @@
+	/**
+	 * Drone State Controller
+	 * A class to control what the drone does at every point
+	 * It consist of different commands or states
+	 * when given a state a switch calls a method depending on the state
+	 * At the end of every state a new state is called 
+	 * @author Simon & Aleksander
+	 *
+	 */
+
 package controllers;
 
 import java.util.Random;
 import java.util.Timer;
 
 import com.google.zxing.Result;
-import com.google.zxing.ResultPoint;
-import de.yadrone.apps.paperchase.PaperChase;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.CommandManager;
-import de.yadrone.base.command.LEDAnimation;
 import droneTest.DroneAlttitudeListener;
-import droneTest.DroneCommander;
 import droneTest.GUITest;
 import imageDetection.Circle;
 
@@ -21,17 +27,15 @@ public class DroneStateController {
 	private double ErrorMargin = 10;	// the Margin of Error in which the center of a circle can be found
 	private double midPoint_x = GUITest.IMAGE_WIDTH/2;	// Camera midpoint in x
 	private double midPoint_y = GUITest.IMAGE_HEIGHT/2;	// camera midpoint in y
-	private float tagOrientation;
 	private double max_radius = 90;	// The size of the circle we want on the camera
-	private Circle[] circles;
 
 	private int count = 0;	//	The counter for amount of centered circles 
-	private int counterCircle = 0;
-	private int altcount = 0;
+	private int altcount = 0;	// Counter for times in a row actualAlttitude == wantedAlttitude
 	private int methodecount = 0;  // Count Used to limit the calls done in findCircleCenter
 	private int countmax = 2;	//	The amount of centered circles we need before flying through a circle
 	private boolean findCircle = false;	//	When true we look for circles
 	
+
 	public enum Command {
 		TakeOff, Hover, MoveToFirstCircle, LostCircleGoBack, CentralizeCircle, SearchForCircle, ValidateQR, StrayAround, FlyThrough, UpdateGate, Land	}
 
@@ -42,21 +46,28 @@ public class DroneStateController {
 	private MainController control;
 	int strayCircleMode = 0;
 
-	private Timer timer;
-
-	private int nextGate = 0;
-	private final int maxGates = 5;
-
-
 	public Result tag;
-
+	
+	
+/**
+ * Constructor for the Drone State controller
+ * @param mainCon
+ * @param drone
+ * @param cmd
+ */
 	public DroneStateController(MainController mainCon, IARDrone drone, CommandManager cmd){
 		this.control = mainCon;
 		this.cmd = cmd;
 		this.drone = drone;
-		this.timer = new Timer();
 	}
 
+	/**
+	 * The Command method
+	 * The main method of this class
+	 * controls everything the drone does
+	 * @param command
+	 * @throws InterruptedException
+	 */
 	public void commands (Command command) throws InterruptedException{
 		if (System.currentTimeMillis() - this.control.lastImageTimer > 15) {
 			System.out.println("Image lag, delaying commands...");
@@ -116,6 +127,13 @@ public class DroneStateController {
 
 		}
 	}
+	
+	/**
+	 * Takeoff method 
+	 * the first method called when starting the drone
+	 * Exception due to control.sleep
+	 * @throws InterruptedException
+	 */
 	public void takeOffDrone() throws InterruptedException {
 		// Takeoff
 		System.out.println("State: ReadyForTakeOff");
@@ -126,11 +144,15 @@ public class DroneStateController {
 		state = Command.Hover;
 	}
 
+	/**
+	 * Hover method 
+	 * used when the drone needs to be still mid air
+	 * mostly used in between other states
+	 * @throws InterruptedException
+	 */
 	public void hoverDrone() throws InterruptedException {
 		// Hover method
 		System.out.println("State: Hover");
-		cmd.hover().doFor(1000);
-		cmd.up(20).doFor(2500);
 		cmd.hover().doFor(1000);
 		control.sleep(100);
 		// Check conditions and transit to next state
@@ -139,15 +161,20 @@ public class DroneStateController {
 
 	int strayMode = 0;
 
+	/**
+	 * Method for finding circels
+	 * strays around random until it finds a circle
+	 * @throws InterruptedException
+	 */
 	public void strayToFirstCircle() throws InterruptedException {
 		System.out.println("State: MoveToFirstCircle");
 		int direction = new Random().nextInt() % 4;
 		switch(direction)
 		{
 		case 0 : drone.getCommandManager().goLeft(slowspeed); System.out.println("LEFT"); break;
-		case 1 : drone.getCommandManager().goLeft(slowspeed); System.out.println("LEFT");break;
-			case 2 : drone.getCommandManager().goLeft(slowspeed); System.out.println("LEFT"); break;
-			case 3 : drone.getCommandManager().goLeft(slowspeed); System.out.println("LEFT");break;
+		case 1 : drone.getCommandManager().goRight(slowspeed); System.out.println("RIGHT");break;
+		case 2 : drone.getCommandManager().up(slowspeed); System.out.println("UP"); break;
+		case 3 : drone.getCommandManager().down(slowspeed); System.out.println("DOWN");break;
 		}
 		
 		Thread.currentThread().sleep(500);
@@ -159,6 +186,11 @@ public class DroneStateController {
 		
 	}
 
+	/**
+	 * Method used when the drone can not find a circle
+	 * before it found the center
+	 * @throws InterruptedException
+	 */
 	public void lostCircleGoBack() throws InterruptedException {
 		System.out.println("State: LostCircleGoBack");
 		int direction = new Random().nextInt() % 4;
@@ -179,6 +211,7 @@ public class DroneStateController {
 		
 	}
 
+	
 	public void validateQR() throws InterruptedException{
 		this.state = state.FlyThrough;
 	}
@@ -188,6 +221,13 @@ public class DroneStateController {
 	int CenteredCount = 0;
 	int CenteredMax = 5;
 
+	
+	/**
+	 * method used for searching for circels
+	 * if the drone cant see a circle 10 frames in a row it will change state to strayaround
+	 * if the drone finds a circle it will change state to centralizecircle
+	 * @throws InterruptedException
+	 */
 	public void searchForCircle() throws InterruptedException {
 		// Increase altitude and search for the circle
 		System.out.print("State: SearchForCircle - ");
@@ -249,6 +289,11 @@ public class DroneStateController {
 	//		Thread.currentThread().sleep(10);
 	//	}
 
+	
+	/**
+	 * method used for centralizing the drone right outside the center of the circle
+	 * @throws InterruptedException
+	 */
 	public void findCircleCenter() throws InterruptedException{
 		if(control.getCircles().length < 1){
 			state = Command.LostCircleGoBack;
@@ -544,6 +589,12 @@ public class DroneStateController {
 		}
 
 	}
+	
+	/**
+	 * method used to search for circles
+	 * moves the drone randomly around
+	 * @throws InterruptedException
+	 */
 	public void strayAround() throws InterruptedException
 	{
 		int direction = new Random().nextInt() % 4;

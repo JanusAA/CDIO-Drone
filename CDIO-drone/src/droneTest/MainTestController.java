@@ -1,5 +1,11 @@
 package droneTest;
 
+/**
+ * NEVER USED
+ * A copy of GUITest
+ * never really used for anything
+ */
+
 import java.util.Scanner;
 
 import org.opencv.core.Core;

@@ -1,5 +1,10 @@
 package droneTest;
 
+/**
+ * early test class
+ * used for videofeed
+ */
+
 import java.awt.image.BufferedImage;
 
 import javax.swing.SwingUtilities;

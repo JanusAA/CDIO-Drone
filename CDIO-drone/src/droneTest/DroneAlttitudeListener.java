@@ -6,15 +6,28 @@ import de.yadrone.base.navdata.AltitudeListener;
 import de.yadrone.base.navdata.AttitudeListener;
 import de.yadrone.base.navdata.BatteryListener;
 
+
+/**
+ * Author: Janus
+ * Altitude Listener
+ * Used to control the altitude of the drone
+ */
 public class DroneAlttitudeListener
 {
 	private int altitude;
 
-	
+	/**
+	 * returns the altitude
+	 * @return
+	 */
 	public int getAltitude() {
 		return altitude;
 	}
 
+	/**
+	 * adds a Altitudelistener for the drone
+	 * @param drone
+	 */
 	public void addAltListener(IARDrone drone){
 		drone.getNavDataManager().addAltitudeListener(new AltitudeListener(){
 			@Override
@@ -29,6 +42,10 @@ public class DroneAlttitudeListener
 			
 		});
 	}
+	/**
+	 * removes the altitude listener from the drone
+	 * @param drone
+	 */
 	public void removeAltListener(IARDrone drone){
 		drone.getNavDataManager().removeAltitudeListener(new AltitudeListener(){
 

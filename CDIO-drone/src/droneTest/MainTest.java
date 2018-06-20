@@ -1,9 +1,11 @@
 package droneTest;
 
+/**
+ * A Tutorial used for learning the basics of ya drone
+ */
 
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
-import de.yadrone.base.command.CommandManager;
 import de.yadrone.base.exception.ARDroneException;
 import de.yadrone.base.exception.IExceptionListener;
 

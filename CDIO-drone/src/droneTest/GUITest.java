@@ -1,20 +1,19 @@
 package droneTest;
 
+/**
+ * The First Main class
+ * Used for early fly testing
+ */
+
 import java.util.Scanner;
 
 import org.opencv.core.Core;
 
-import com.google.zxing.Result;
-import com.google.zxing.ResultPoint;
-
 import QR.QRCode;
-import controllers.MainController;
 import controllers.DroneStateController;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
-import de.yadrone.base.command.VideoBitRateMode;
 import de.yadrone.base.command.VideoChannel;
-import de.yadrone.base.command.VideoCodec;
 import imageDetection.CircleScanner;
 
 public class GUITest {
@@ -28,7 +27,7 @@ public class GUITest {
 	
 	private IARDrone drone = null;
 	private CircleScanner circles = null;
-	private AbstractTestController cmd;
+	private DroneCommander cmd;
 	private QRCode scanner = null;
 	private DroneStateController dsc = null;
 	private Scanner scan = new Scanner(System.in);
@@ -48,7 +47,6 @@ public class GUITest {
 		scanner = new QRCode();
 		circles.addListener(gui);
 		scanner.addListener(gui);
-		circles.addListener(cmd);
 //		scanner.addListener(cmd);
 		
 		

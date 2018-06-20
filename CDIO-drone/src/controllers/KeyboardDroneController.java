@@ -18,7 +18,10 @@ public class KeyboardDroneController extends AbstractDroneController{
 		this.md = main;
 	}
 
-	// Used for testing purposes
+	/**
+	 * Used for testing purposes
+	 * @param drone
+	 */
 	public KeyboardDroneController(IARDrone drone) {
 		super(drone);
 	}
@@ -32,6 +35,9 @@ public class KeyboardDroneController extends AbstractDroneController{
 		manager.addKeyEventDispatcher(keyEventDispatcher);
 	}
 
+	/**
+	 * Keybinding used to control the drone doing testing
+	 */
 	private KeyEventDispatcher keyEventDispatcher = new KeyEventDispatcher() {
 
 		public boolean dispatchKeyEvent(KeyEvent e) {

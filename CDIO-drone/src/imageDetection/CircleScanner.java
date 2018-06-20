@@ -7,10 +7,15 @@ import java.util.ArrayList;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import de.yadrone.base.video.ImageListener;
+
+/**
+ * Used for Scanning a image/frame for circles
+ * @author Aleksander & Morten
+ *
+ */
 
 public class CircleScanner implements ImageListener {
 

@@ -13,18 +13,28 @@ import de.yadrone.base.command.VideoChannel;
 import de.yadrone.base.navdata.AttitudeListener;
 import imageDetection.CircleScanner;
 
+/**
+ * Class used for late testing just before adding statecontroller
+ * @author simon
+ *
+ */
+
 public class MainDroneStarter {
-	public final static int IMAGE_WIDTH = 1280 /2;
-	public final static int IMAGE_HEIGHT = 720 /2;
+	public final static int IMAGE_WIDTH = 1280 /2;	// The size of the videofeed, used for centralizing and drawing
+	public final static int IMAGE_HEIGHT = 720 /2;	// The size of the videofeed, used for centralizing and drawing
 
-	public final static int TOLERANCE = 35;
+	public final static int TOLERANCE = 35;	// The Tolerance, static value used in the entire project
 
-	private IARDrone drone = null;
-	private MainController droneControl;
-	private QRCode scanner = null;
+	private IARDrone drone = null;	// The Drone
+	private MainController droneControl;	// The main controller
+	private QRCode scanner = null;	//The QR Scanner
 	
 	private boolean autoControlEnabled = false;
 	
+	/**
+	 * The main method in this class
+	 * used for starting the drone up
+	 */
 	public MainDroneStarter(){
 		drone = new ARDrone();
 		droneControl = new MainController(drone);
@@ -64,14 +74,21 @@ public class MainDroneStarter {
 		scan.nextLine();
 		droneControl.run();
 		
-		CommandManager cmd = drone.getCommandManager();
 		
 	}
 	
+	/**
+	 * Method for returning the Main controller
+	 * @return
+	 */
 	public MainController getDroneControl(){
 		return droneControl;
 	}
 	
+	/**
+	 * Method used for enabling the autocontroller
+	 * @param enable
+	 */
 	public void enableAutoControl(boolean enable){
 		if(enable){
 			scanner.addListener(droneControl);
@@ -83,17 +100,29 @@ public class MainDroneStarter {
 		}
 		this.autoControlEnabled = enable;
 		}
-	
-	// Main program start
+
+/**
+ * The main
+ * @param args
+ * @throws FileNotFoundException
+ */
 		public static void main(String[] args) throws FileNotFoundException {
 			System.loadLibrary(Core.NATIVE_LIBRARY_NAME); // Load OpenCV
 			new MainDroneStarter();
 		}
 
+		/**
+		 * returns a boolean discribing if autocontrol is on
+		 * @return
+		 */
 		public boolean getAutoControlEnabled() {
 			return autoControlEnabled;
 		}
 
+		/**
+		 * returns the Altitude
+		 * @return
+		 */
 		public int getAltitude() {
 			return this.droneControl.getAltitude();
 		}

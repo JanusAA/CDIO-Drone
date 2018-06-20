@@ -1,13 +1,13 @@
 /**
- * Author: Aleksander
+ * Author: Simon
+ * The First Class made for moving the drone
+ * DroneStateController and Maincontroller uses many method from this class
+ * Mainly used for testing before setting up the program right
  */
-
 
 package droneTest;
 
-import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
@@ -15,7 +15,6 @@ import java.util.Random;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 
-import QR.QRListener;
 import controllers.DroneStateController;
 import controllers.MainController;
 import de.yadrone.apps.paperchase.PaperChase;
@@ -29,7 +28,6 @@ import droneTest.GUITest;
 public class DroneCommander {
 
 
-	private ArrayList<CircleListener> listeners = new ArrayList<CircleListener>();
 	private ArrayList<String> tagVisitedList = new ArrayList<String>();
 	
 	private ARDrone drone = null;
@@ -306,6 +304,10 @@ public class DroneCommander {
 	}
 	
 	
+	/**
+	 * Method used for getting the drone to a fixed altitude
+	 * @param height
+	 */
 	public void moveToAltitude(int height){
 		DroneAlttitudeListener nav = new DroneAlttitudeListener();
 		nav.addAltListener(drone);
@@ -485,6 +487,11 @@ public class DroneCommander {
 //		}
 //	}
 	
+	/**
+	 * used for letting a method sleep
+	 * When made the program ran on the same thread and if Thread.currentthread().sleep were called
+	 * the entire program slept, also meening the videofeed 
+	 */
 	public void timeOut(){
 		int dateToBeat = (int) new Date().getTime() + 250;
 		int date = (int) new Date().getTime();
@@ -506,6 +513,10 @@ public class DroneCommander {
 //	}
 	
 
+	/**
+	 * method comes from implementing the circlelistener
+	 * @param circle
+	 */
 	public void circlesUpdated(Circle[] circle) {
 		if (circle == null) // ToDo: do not call if no tag is present
 			return;
@@ -518,6 +529,9 @@ public class DroneCommander {
 //		}
 	}
 	
+	/**
+	 * the main method for finding and centralizing the drone to a QR code
+	 */
 	public void runTheQRFinder()
 	{
 		while(true) // control loop
@@ -571,7 +585,10 @@ public class DroneCommander {
 //		tagOrientation = orientation;
 //	}
 	
-	
+	/**
+	 * boolean for the drone in center of the QR
+	 * @return
+	 */
 	private boolean isTagCentered()
 	{
 		if (tag == null)
@@ -597,6 +614,12 @@ public class DroneCommander {
 		return isCentered && isOriented;
 	}
 	
+	/**
+	 * method not used
+	 * should compare the QR code to an array and return true of false
+	 * if the QR have been seen before
+	 * @return
+	 */
 	private boolean hasTagBeenVisited()
 	{
 		synchronized(tag)
@@ -611,6 +634,10 @@ public class DroneCommander {
 		return false;
 	}
 	
+	/**
+	 * moved the drone around randomly used for searching for QR and circles
+	 * @throws InterruptedException
+	 */
 	public void strayAround() throws InterruptedException
 	{
 		int direction = new Random().nextInt() % 4;
@@ -624,6 +651,7 @@ public class DroneCommander {
 		
 		Thread.currentThread().sleep(500);
 	}
+	
 	
 	public void centerTag() throws InterruptedException
 	{

@@ -1,5 +1,11 @@
 package imageDetection;
 
+/**
+ * Author: Simon
+ * A secound CircleScanner made to not delete reference of the current circle
+ * not used
+ */
+
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.util.ArrayList;

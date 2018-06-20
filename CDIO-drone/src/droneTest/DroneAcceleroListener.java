@@ -5,6 +5,12 @@ import de.yadrone.base.navdata.AcceleroListener;
 import de.yadrone.base.navdata.AcceleroPhysData;
 import de.yadrone.base.navdata.AcceleroRawData;
 
+/**
+ * Author: Morten
+ * Drone Accelero Listener
+ * a Listener used to calculate the acceleration of the drone
+ * not yet implemented
+ */
 public class DroneAcceleroListener {
 
 	public DroneAcceleroListener(IARDrone drone){

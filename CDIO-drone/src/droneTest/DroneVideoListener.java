@@ -16,7 +16,9 @@ import de.yadrone.base.IARDrone;
 import de.yadrone.base.command.VideoChannel;
 import de.yadrone.base.video.ImageListener;
 import imageDetection.Circle;
-//BRUGER IKKE!!
+/**
+ * Not used
+ */
 
 public class DroneVideoListener extends JFrame {
 

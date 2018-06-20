@@ -1,5 +1,12 @@
 package droneTest;
 
+/**
+ * Really early testing
+ * about same time as maintest the tutorial
+ * used for learning the basics of ya drone 
+ * and understading how the drone works
+ */
+
 import de.yadrone.apps.controlcenter.plugins.qrcode.*;
 import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;

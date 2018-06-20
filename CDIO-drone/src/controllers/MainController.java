@@ -1,18 +1,19 @@
 package controllers;
 
+/**
+ * Author: Simon & Aleksander
+ */
+
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.opencv.core.Point;
 
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 
-import QR.QRCode;
 import QR.QRListener;
 import controllers.DroneStateController.Command;
-import de.yadrone.base.ARDrone;
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.exception.ARDroneException;
 import de.yadrone.base.exception.IExceptionListener;
@@ -20,20 +21,15 @@ import de.yadrone.base.exception.VideoException;
 import de.yadrone.base.navdata.Altitude;
 import de.yadrone.base.navdata.AltitudeListener;
 import de.yadrone.base.video.ImageListener;
-import droneTest.DroneCommander;
-import droneTest.GUITest;
 import imageDetection.Circle;
 import imageDetection.CircleListener;
 
 
 public class MainController extends AbstractDroneController implements QRListener, CircleListener, ImageListener {
-	private int speed = 30;  // The base velocity in %
 	private int slowspeed = 5;  //  The velocity used for centralizing in %
-	private int slowtime = 200;	//	The time centralizing commands are done in ms
 	private double ErrorMargin = 20;	// the Margin of Error in which the center of a circle can be fount
 	private double midPoint_x = MainDroneStarter.IMAGE_WIDTH/2;	// Camera midpoint in x
 	private double midPoint_y = MainDroneStarter.IMAGE_HEIGHT/2;	// camera midpoint in y
-	private float tagOrientation;
 	private double max_radius = 120;	// The size of the circle we want on the camera
 	protected Result QRtag;
 	private Circle[] circles;
@@ -41,19 +37,32 @@ public class MainController extends AbstractDroneController implements QRListene
 
 	protected double lastImageTimer;
 	protected int circleRadius = (int) (MainDroneStarter.IMAGE_HEIGHT * 0.45);
-	private ArrayList<String> gates = new ArrayList<String>();
 	private DroneStateController stateCon;
+	
+	/**
+	 * Method used to get the DroneStateController
+	 * @return
+	 */
 
 	public DroneStateController getStateCon() {
 		return stateCon;
 	}
 
+	
+	/**
+	 * The Constructor for the MainController
+	 * @param drone
+	 */
 	public MainController(IARDrone drone){
 		super(drone);
 		setupAltitudeListener();
 		drone.addExceptionListener(new ExceptionListener());
 	}
 
+	/**
+	 * Run method 
+	 * the main method in which the entire programs run
+	 */
 	@Override
 	public void run() {
 		this.doStop = false;
@@ -71,17 +80,30 @@ public class MainController extends AbstractDroneController implements QRListene
 
 	
 
-
+/**
+ * method for returning the circles array
+ * @return
+ */
 	Circle[] getCircles() {
 		return circles;
 	}
 
+	/**
+	 * method for Returning the QR tag
+	 */
 	public void onTag(Result result, float orientation) {
 		if (result == null)
 			return;
 		QRtag = result;
 	}
 
+	
+	/**
+	 * method for knowing when the drone is at the circle center
+	 * within the margin of error
+	 * @return
+	 * @throws InterruptedException
+	 */
 	public boolean CircleIsCentered() throws InterruptedException {
 		boolean centered = false;
 		if(circles.length > 0){
@@ -155,6 +177,10 @@ public class MainController extends AbstractDroneController implements QRListene
 		return centered;
 	}
 
+	/**
+	 * method for know if the drone is centered compared to the QR code
+	 * @returns a boolean
+	 */
 	public boolean isQRCentered(){
 		if (QRtag == null)
 			return false;
@@ -171,16 +197,29 @@ public class MainController extends AbstractDroneController implements QRListene
 						&& (getQRSize() < (MainDroneStarter.IMAGE_WIDTH / 14))));
 	}
 
+	/**
+	 * imageUpdated is a method that comes from implementing imagelistener
+	 * updates lastImageTimer as the time the last image came in
+	 */
 	@Override
 	public void imageUpdated(BufferedImage image) {
 		this.lastImageTimer = System.currentTimeMillis();
 	}
 
+	/**
+	 * CirclesUpdates is a method which comes from implementing CircleListener
+	 * updates the circle array circles as the last circles to be seen
+	 */
 	@Override
 	public void circlesUpdated(Circle[] circle) {
 		this.circles = circle;
 	}
 
+	/**
+	 * Method for calculating the size of the QR code in a image
+	 * used for measuring the distance between the drone and QR code
+	 * @return
+	 */
 	public double getQRSize() {
 		if (QRtag != null){
 			ResultPoint[] points = QRtag.getResultPoints();
@@ -190,6 +229,11 @@ public class MainController extends AbstractDroneController implements QRListene
 			return 0.0;
 	}
 
+	/**
+	 * method used find the center of a QR code, used for centralizing
+	 * @param tag
+	 * @return
+	 */
 	private Point getQRCenter(Result tag) {
 		ResultPoint[] points = tag.getResultPoints();
 		double dy = (points[0].getY() + points[1].getY()) / 2; 
@@ -197,6 +241,11 @@ public class MainController extends AbstractDroneController implements QRListene
 		return new Point(dx, dy);
 	}
 
+	/**
+	 * method used for calculating the relative angle of a QR code
+	 * @param tag
+	 * @return
+	 */
 	public double getQRRelativeAngle(Result tag) {
 		final double cameraAngle = 92;
 		final double imgCenterX = (int) midPoint_x;
@@ -210,10 +259,17 @@ public class MainController extends AbstractDroneController implements QRListene
 		}
 	}
 
+	/**
+	 * method which returns the relative angle of a QR code
+	 * @return
+	 */
 	public double getQRRelativeAngle() {
 		return getQRRelativeAngle(this.QRtag);
 	}
 
+	/**
+	 * Setup method for the Altitudelistener
+	 */
 	private void setupAltitudeListener() {
 		drone.getNavDataManager().addAltitudeListener(new AltitudeListener() {
 			@Override
@@ -227,10 +283,17 @@ public class MainController extends AbstractDroneController implements QRListene
 		});
 	}
 
+	/**
+	 * method for returning the current altitude of the drone
+	 * @return
+	 */
 	public int getAltitude() {
 		return this.altitude;
 	}
 
+	/**
+	 * Execptionlistener
+	 */
 	class ExceptionListener implements IExceptionListener {
 		@Override
 		public void exeptionOccurred(ARDroneException exc) {

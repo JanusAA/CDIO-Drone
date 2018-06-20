@@ -1,5 +1,12 @@
 package droneTest;
 
+/**
+ * Author: Aleksander & Morten
+ * Drone Gyro Listener
+ * not yet implemented
+ * Supposed to be used for coalition  
+ */
+
 import de.yadrone.base.IARDrone;
 import de.yadrone.base.navdata.AttitudeListener;
 import de.yadrone.base.navdata.GyroListener;
