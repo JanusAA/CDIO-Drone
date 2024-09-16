@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="CDIO-drone/src"/>
-	<classpathentry exported="true" kind="lib" path="CDIO-drone/libs/yadrone_032.jar"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/aleks/Documents/GitHub/CDIO-Drone/CDIO-drone/libs/yadrone_032_fat_lib.zip"/>
+	<classpathentry kind="lib" path="CDIO-drone/libs/yadrone_032.jar"/>
+	<classpathentry kind="lib" path="CDIO-drone/libs/commons-net-3.2.jar"/>
+	<classpathentry kind="lib" path="CDIO-drone/libs/core-2.2.jar"/>
+	<classpathentry kind="lib" path="CDIO-drone/libs/core.jar"/>
+	<classpathentry kind="lib" path="CDIO-drone/libs/guava-11.0.2.jar"/>
+	<classpathentry kind="lib" path="CDIO-drone/libs/javase-2.2.jar"/>
+	<classpathentry kind="lib" path="CDIO-drone/libs/javassist-3.16.1-GA.jar"/>
+	<classpathentry kind="lib" path="CDIO-drone/libs/jcommon-1.0.16.jar"/>
+	<classpathentry kind="lib" path="CDIO-drone/libs/jfreechart-1.0.13.jar"/>
+	<classpathentry kind="lib" path="CDIO-drone/libs/reflections-0.9.9-RC1.jar"/>
+	<classpathentry kind="lib" path="CDIO-drone/libs/slf4j-api-1.7.2.jar"/>
+	<classpathentry kind="lib" path="CDIO-drone/libs/slf4j-jdk14-1.7.2.jar"/>
+	<classpathentry kind="lib" path="CDIO-drone/libs/xuggle-xuggler-5.4.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/opencv"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
